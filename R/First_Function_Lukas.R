@@ -15,12 +15,21 @@ require("magrittr")
 
 ###Defining Arguments Dataset API (Sample)
 
-show_data <- function(Parameter = NULL) {
-  resp <- GET("https://www.offenedaten-konstanz.de/api/3/action/current_package_list_with_resources")                                  #get URL
+show_data <- function(Simplified = TRUE, Parameter = NULL) {
+  resp <- GET("https://www.offenedaten-konstanz.de/api/3/action/current_package_list_with_resources") #get URL
   resp_list <- fromJSON(content(resp, 'text'), flatten = TRUE)       #save JSON-data in a list
-  resp_df <- as.data.frame(resp_list)               #generate data Frame
-  View(resp_df)
+  metadata <- as.data.frame(resp_list)               #generate data Frame
+  if (Simplified)  return (metadata %>%
+                             select(c('result.title','result.url')) %>%
+                             as.data.frame() %>%
+                             View()
+  )
+  if (!Simplified)  return (View(metadata))
 }
 
-show_data()
+#Testing most basic function show_data
+show_data()  #When there is no argument "Simplified = FALSE", the function only shows the most basic variables
+show_data(Simplified = FALSE)
+
+
 
