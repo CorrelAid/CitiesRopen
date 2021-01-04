@@ -15,21 +15,28 @@ require("magrittr")
 
 ###Defining Arguments Dataset API (Sample)
 
-show_data <- function(Simplified = TRUE, Parameter = NULL) {
-  resp <- GET("https://www.offenedaten-konstanz.de/api/3/action/current_package_list_with_resources") #get URL
-  resp_list <- fromJSON(content(resp, 'text'), flatten = TRUE)       #save JSON-data in a list
+show_data <- function(meta = FALSE, group = NULL, external = NULL) {
+  resp <- httr::GET("https://www.offenedaten-konstanz.de/api/3/action/current_package_list_with_resources") #get URL
+  resp_list <- fromJSON(httr::content(resp, 'text'), flatten = TRUE)       #save JSON-data in a list
   metadata <- as.data.frame(resp_list)               #generate data Frame
-  if (Simplified)  return (metadata %>%
-                             select(c('result.title','result.url')) %>%
+  if (!meta)  return (metadata %>%
+                             select(c('result.title','result.tags','result.resources','result.groups')) %>%
                              as.data.frame() %>%
                              View()
   )
-  if (!Simplified)  return (View(metadata))
+  if (meta)  return (View(metadata))
 }
+
+### Note; The current result is the basic information like in df_temp. However, the most important information
+###       are in the sub-datasets within the variables 'result.tags','result.resources','result.groups'.
+###       Having to leave now, I will next continue to iterate over those data frames to extract the most important
+###       information, namely category, URL to access the data and possibly origin
+
+
 
 #Testing most basic function show_data
 show_data()  #When there is no argument "Simplified = FALSE", the function only shows the most basic variables
-show_data(Simplified = FALSE)
+show_data(meta = TRUE)
 
 
 
