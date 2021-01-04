@@ -27,10 +27,18 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
   if (meta)  return (View(metadata))
 }
 
+<<<<<<< HEAD
 ### Note; The current result is the basic information when running the show_data() function. However, the most important information
 ###       are in the sub-datasets within the variables 'result.tags','result.resources','result.groups'.
 ###       Having to leave now, I will next continue to iterate over those data frames to extract the most important
 ###       information, namely category, URL to access the data and data provider.
+=======
+### Note; The current result is the basic information like in df_temp. However, the most important information
+###       are in the sub-datasets within the variables 'result.tags','result.resources','result.groups'.
+###       Having to leave now, I will next continue to iterate over those data frames to extract the most important
+###       information, namely category, URL to access the data and possibly origin
+
+>>>>>>> cc83dc68825ad03d73e10bc01908c062e9615844
 
 
 #Testing most basic function show_data
