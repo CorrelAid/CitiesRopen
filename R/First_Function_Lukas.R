@@ -12,6 +12,7 @@ rm(list = ls())
 require("httr")
 require("jsonlite")
 require("magrittr")
+require("tidyverse")
 
 ###Defining Arguments Dataset API (Sample)
 
@@ -22,20 +23,26 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
   if (!meta)  return (metadata %>%
                              select(c('result.title','result.tags','result.resources','result.groups')) %>%
                              as.data.frame() %>%
+                             assign("Konstanz_df",.,envir = .GlobalEnv) %>%
                              View()
+
   )
-  if (meta)  return (View(metadata))
+  if (meta)  return (View(metadata %>%
+                            result <- show_data() %>%
+                            View()))
 }
-
-### Note; The current result is the basic information when running the show_data() function. However, the most important information
-###       are in the sub-datasets within the variables 'result.tags','result.resources','result.groups'.
-###       Having to leave now, I will next continue to iterate over those data frames to extract the most important
-###       information, namely category, URL to access the data and data provider.
-
 
 #Testing most basic function show_data
 show_data()  #When there is no argument "Simplified = FALSE", the function only shows the most basic variables
 show_data(meta = TRUE)
+
+##This is for unnesting dataframes within dataframes
+DF_ressources <- unnest(Konstanz_df, cols = c(result.resources))
+DF_tags <- unnest(Konstanz_df, cols = c(result.tags))
+DF_groups <- unnest(Konstanz_df, cols = c(result.groups))
+
+
+
 
 
 
