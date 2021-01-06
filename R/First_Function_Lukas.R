@@ -32,7 +32,7 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
                             View()))
 }
 
-#Testing most basic function show_data
+
 show_data()  #When there is no argument "Simplified = FALSE", the function only shows the most basic variables
 show_data(meta = TRUE)
 
