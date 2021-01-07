@@ -29,11 +29,8 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
                              View()
 
   )
-  if (meta)  return (View(metadata %>%
-                            result <- show_data() %>%
-                            View()))
+  if (meta)  return (View(metadata))
 }
-
 
 show_data()  #When there is no argument "Simplified = FALSE", the function only shows the most basic variables
 show_data(meta = TRUE)
@@ -80,4 +77,7 @@ df <- join_all(list(DF_ressources,DF_tags,DF_groups), by = 'id', type = 'full')
 
 
 
+install.packages("usethis")
+library("usethis")
 
+use_readme_
