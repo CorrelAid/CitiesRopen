@@ -40,6 +40,9 @@ DF_ressources <- unnest(Konstanz_df, cols = c(result.resources))
 DF_tags <- unnest(Konstanz_df, cols = c(result.tags))
 DF_groups <- unnest(Konstanz_df, cols = c(result.groups))
 
+### Code works until here!!
+### Now playing around
+
 DF_ressources %>%
   select(id,format,state,size) %>%
   as.data.frame() %>%
