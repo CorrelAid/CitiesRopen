@@ -23,18 +23,39 @@ show_data <- function() {
   }
 
   parsed <- httr::content(resp, "text") %>%
-    jsonlite::fromJSON(simplifyVector = FALSE)
+    jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE)
 
-  return(parsed)
+  parsed %>%
+    chuck("result", 1) -> package_list
+
+  package_list %>%
+    map_dfr(magrittr::extract, c("id","title")) -> macro_data
+
+  package_list %>%
+    map(chuck, "resources") -> only_ressources
+
+  temp_list <- vector("list", length = length(only_ressources))
+
+  for (i in seq_along(only_ressources)) {
+
+    only_ressources %>%
+      purrr::chuck(i) %>%
+      purrr::map_dfr(magrittr::extract, c("url","format","resource_group_id"), .id = "no_ressource") %>%
+      dplyr::bind_cols(tibble(datasource = i)) -> temp_list[[i]]
+  }
+
+  dplyr::bind_rows(temp_list) -> ressource_df
+
+  return(list(macro_data, ressource_df))
 
 }
 
-package_list <- show_data()
 
-package_list %>%
-  chuck("result", 1, 1, "id")
 
-package_list %>%
-  chuck("result", 1) %>%
-  map_dfr(extract, c("id", "title"))
+
+# tryout_stuff - not relevant for function call ---------------------------
+
+
+function_return <- show_data() # now the function returns two lists in which two dfs are stored
+
 
