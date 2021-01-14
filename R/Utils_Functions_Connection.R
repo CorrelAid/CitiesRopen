@@ -6,7 +6,7 @@
 #' @importFrom attempt stop_if_not
 #' @importFrom curl has_internet
 check_internet <- function(){
-  stop_if_not(.x = has_internet(), msg = "Please check your internet connexion")
+  stop_if_not(.x = has_internet(), msg = "Please check your internet connection")
 }
 
 #' @importFrom httr status_code
@@ -17,3 +17,5 @@ check_status <- function(res){
 }
 
 base_url <- "https://www.offenedaten-konstanz.de/api/3/action/"
+check_internet()
+check_status()

@@ -1,6 +1,12 @@
----
-output: github_document
----
+# CitierRopen
+
+This repository is still under construction.
+
+```
+
+show_data()
+
+```
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -54,3 +60,6 @@ plot(pressure)
 ```
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+
+devtools::build_readme()
+
