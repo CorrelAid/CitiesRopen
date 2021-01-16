@@ -24,7 +24,7 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
 
   if (http_type(resp) != "application/json") {
     stop("API did not return json", call. = FALSE)
-}
+  }
 
   #Putting the response into a list
 
@@ -33,7 +33,7 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
   #Saving the list as Dataframe and dropping the first level
 
   resp_list %>%
-  chuck("result", 1) -> Konstanz_df
+    chuck("result", 1) -> Konstanz_df
 
   #The List/Dataframe comes with a nested structure. There are three variables (result.resources,result.tags,result.groups),
   #which contain further information on the single files.
@@ -41,11 +41,11 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
 
   for(i in names(Konstanz_df)){
     if (i == 'resources'){
-        Konstanz_df  %>%
+      Konstanz_df  %>%
         select('id','resources') %>%
         drop_na()  %>%
         dplyr::mutate(resources = map(resources, ~.x %>% #Source: https://stackoverflow.com/questions/56048124/how-to-change-colname-of-nested-dataframe
-                            rename_at(1, ~ "id_resources"))) %>%
+                                        rename_at(1, ~ "id_resources"))) %>%
         tidyr::unnest(cols = resources, keep_empty = TRUE, names_repair = 'unique') %>%
         dplyr::select('id','id_resources','name','url','format','mimetype','size')-> ressources}
     else if (i == 'tags'){
@@ -53,7 +53,7 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
         select('id','tags') %>%
         drop_na()  %>%
         dplyr::mutate(tags = map(tags, ~.x %>%
-                                        rename_at(1, ~ "id_tags"))) %>%
+                                   rename_at(1, ~ "id_tags"))) %>%
         tidyr::unnest(cols = tags, keep_empty = TRUE, names_repair = 'unique') %>%
         dplyr::select('id','id_tags','name')-> tags}
     else if ( i == 'groups'){
@@ -61,7 +61,7 @@ show_data <- function(meta = FALSE, group = NULL, external = NULL) {
         select('id','groups') %>%
         drop_na()  %>%
         dplyr::mutate(groups = map(groups, ~.x %>%
-                                        rename_at(3, ~ "id_groups"))) %>%
+                                     rename_at(3, ~ "id_groups"))) %>%
         tidyr::unnest(cols = groups, keep_empty = TRUE, names_repair = 'unique') %>%
         dplyr::select('id','id_groups','title','name') -> groups}
     else{}
