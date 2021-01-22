@@ -1,4 +1,4 @@
-CitierRopen
+CitiesRopen
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -12,7 +12,7 @@ status](https://www.r-pkg.org/badges/version/CitiesRopen)](https://CRAN.R-projec
 <!-- badges: end -->
 
 The goal of CitiesRopen is to provide an easy access to the Open Data
-Portal of the City of Konstanz
+Portal of the City of Konstanz \[<https://offenedaten-konstanz.de/>\]
 
 ## Installation
 
