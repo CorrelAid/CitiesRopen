@@ -1,12 +1,7 @@
-# CitierRopen
-
-This repository is still under construction.
-
-```
-
-show_data()
-
-```
+---
+title: CitiesRopen
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -19,14 +14,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-# CitiesRopen
-
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN status](https://www.r-pkg.org/badges/version/CitiesRopen)](https://CRAN.R-project.org/package=CitiesRopen)
 <!-- badges: end -->
 
-The goal of CitiesRopen is to ...
+The goal of CitiesRopen is to provide an easy access to the Open Data Portal of the City of Konstanz [https://offenedaten-konstanz.de/]
 
 ## Installation
 
@@ -39,11 +32,6 @@ install.packages("CitiesRopen")
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
-
-```{r example}
-library(CitiesRopen)
-## basic example code
-```
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
@@ -60,6 +48,4 @@ plot(pressure)
 ```
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
-
-devtools::build_readme()
 
