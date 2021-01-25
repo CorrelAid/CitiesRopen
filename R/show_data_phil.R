@@ -90,13 +90,3 @@ show_data <- function() {
 
 
 function_return <- show_data() # now the function returns two lists in which two dfs are stored
-
-
-
-tag_df %>%
-  dplyr::mutate(no_tag = stringr::str_c("tag_no", "_",  no_tag))
-
-
-function_return %>%
-  group_by(datasource) %>%
-  tally()
