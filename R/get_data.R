@@ -41,28 +41,10 @@ get_data2 <- function(data){
     url <- data$url[i]
     name <- data$title[i]
     utils::download.file(url, "temp.csv")
-    file.rename(from = "temp.csv", to = paste(name,"csv", sep = "." ))
+    file.rename(from = "temp.csv", to = paste(i,name,"csv", sep = "." ))
   }}
 
 ##Checking
 lst %>%
   get_data2()
-
-
-
-
-
-resp <- httr::GET(function_return2$url)
-
-if (http_type(resp) != "application/json") {
-  stop("API did not return json", call. = FALSE)
-}
-
-
-
-parsed <- httr::content(resp, "text") %>%
-  jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE) %>%
-  assign(liste$title,.,envir = .GlobalEnv)
-
-function_return2 <- function_return[1:2,]
 
