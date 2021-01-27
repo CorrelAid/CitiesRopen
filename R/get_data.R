@@ -23,9 +23,7 @@ library(rlang)
 setwd("/Users/lukas/CitiesRopen/R")
 source("show_data_phil.R")
 
-url_example <- "https://offenedaten-konstanz.de/sites/default/files/Abfallplaner_M%C3%BCllabfuhrtermine_2020.csv"
-
-##Seting up an example list of URLs
+##Seting up an example list of URLs, which should be provided by the show_data()-Function!
 
 function_return2 <- function_return[1:2,]
 
@@ -34,17 +32,19 @@ function_return %>%
 
 lst = lst[1:2,]
 
+basename(lst$url[1])
+
 ## Setting up Function
 
-get_data2 <- function(data){
+get_data <- function(data){
   for (i in 1:nrow(data)){
     url <- data$url[i]
-    name <- data$title[i]
+    name <- basename(lst$url[1]) ##Alternatively, one could also use the respective title in the "title" column
     utils::download.file(url, "temp.csv")
-    file.rename(from = "temp.csv", to = paste(i,name,"csv", sep = "." ))
+    file.rename(from = "temp.csv", to = paste(i,name, sep = "." ))
   }}
 
 ##Checking
 lst %>%
-  get_data2()
+  get_data()
 
