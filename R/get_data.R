@@ -20,49 +20,49 @@ library(rlang)
 
 ##Run the show_data function from the first function
 
+setwd("/Users/lukas/CitiesRopen/R")
 source("show_data_phil.R")
 
 url_example <- "https://offenedaten-konstanz.de/sites/default/files/Abfallplaner_M%C3%BCllabfuhrtermine_2020.csv"
 
-# get package list with resources
-
-get_data <- function(.data) {
-    for (i in function_return2$url) {
-      resp <- httr::GET(function_return2$url)
-
-      if (http_type(resp) != "application/json") {
-        stop("API did not return json", call. = FALSE)
-      }
-
-      parsed <- httr::content(resp, "text") %>%
-      jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE) %>%
-      assign(liste$title,.,envir = .GlobalEnv)
-  }
-}
+##Seting up an example list of URLs
 
 function_return2 <- function_return[1:2,]
 
-function_return2 %>%
- get_data()
-
 function_return %>%
-  select(url,title) -> lst
-    for (i in lst$url) {
-      print(lst$url)
-}
+  select(url,title, format) -> lst
 
-for (i in lenght(r)) {
-   return(print(r$url))
-}
+lst = lst[1:2,]
+
+## Setting up Function
+
+get_data2 <- function(data){
+  for (i in 1:nrow(data)){
+    url <- data$url[i]
+    name <- data$title[i]
+    utils::download.file(url, "temp.csv")
+    file.rename(from = "temp.csv", to = paste(name,"csv", sep = "." ))
+  }}
+
+##Checking
+lst %>%
+  get_data2()
 
 
-resp <- httr::GET(!!rlang::ensym(.data))
+
+
+
+resp <- httr::GET(function_return2$url)
+
 if (http_type(resp) != "application/json") {
   stop("API did not return json", call. = FALSE)
 }
 
+
+
 parsed <- httr::content(resp, "text") %>%
-  jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE)
+  jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE) %>%
+  assign(liste$title,.,envir = .GlobalEnv)
 
+function_return2 <- function_return[1:2,]
 
-list(function_return2) -> r
