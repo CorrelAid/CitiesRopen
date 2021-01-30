@@ -52,7 +52,7 @@ show_data <- function() {
   dplyr::bind_rows(temp_list_ressources) -> ressource_df
 
   package_list %>%
-    map(chuck, "tags") -> only_tags
+    map(pluck, "tags") -> only_tags
 
   temp_list_tags <- vector("list", length = length(only_tags))
 
@@ -91,7 +91,7 @@ show_data <- function() {
 
 function_return <- show_data() # now the function returns two lists in which two dfs are stored
 
-
+call
 
 tag_df %>%
   dplyr::mutate(no_tag = stringr::str_c("tag_no", "_",  no_tag))
