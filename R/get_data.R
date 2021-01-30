@@ -22,7 +22,7 @@ library(data.table)
 ##Run the show_data function from the first function
 
 setwd("/Users/lukas/CitiesRopen/R")
-source("show_data_phil.R")
+source("show_data.R")
 
 ##Seting up an example list of URLs, which should be provided by the show_data()-Function!
 

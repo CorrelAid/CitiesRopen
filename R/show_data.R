@@ -44,7 +44,7 @@ show_data <- function() {
 
     only_ressources %>%
       purrr::chuck(i) %>%
-      purrr::map_dfr(magrittr::extract, c("url","format","resource_group_id"),
+      purrr::map_dfr(magrittr::extract, c("url","name","format","resource_group_id"),
                      .id = "no_ressource") %>%
       dplyr::bind_cols(tibble(datasource = i)) -> temp_list_ressources[[i]]
   }
