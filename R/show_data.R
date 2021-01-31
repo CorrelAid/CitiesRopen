@@ -88,8 +88,7 @@ show_data <- function() {
 
 # tryout_stuff - not relevant for function call ---------------------------
 
-
-function_return <- show_data() # now the function returns two lists in which two dfs are stored
+system.time(function_return <- show_data())
 
 
 
@@ -100,3 +99,6 @@ tag_df %>%
 function_return %>%
   group_by(datasource) %>%
   tally()
+
+
+# work on own branch tryout phil
