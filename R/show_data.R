@@ -1,4 +1,4 @@
-### get_data ###
+### show_data ###
 
 
 # load packages
@@ -9,6 +9,8 @@ library(jsonlite)
 library(magrittr)
 library(tidyr)
 library(stringr)
+library(urltools)
+
 
 # define API endpoint
 
@@ -16,30 +18,39 @@ library(stringr)
 
 # get package list with resources
 
-show_data <- function() {
+show_data <- function(external = TRUE) {
+
+  # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
 
+  # get json file with ressources
   resp <- httr::GET(url)
   if (http_type(resp) != "application/json") {
     stop("API did not return json", call. = FALSE)
   }
 
-  parsed <- httr::content(resp, "text") %>%
+  # parse json file to r list object
+  parsed <- httr::content(resp, "text", encoding = "UTF-8") %>%
     jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE)
 
+  # extract list element of interest
   parsed %>%
     chuck("result", 1) -> package_list
 
+  # extract title and id of available datasets and save as df
   package_list %>%
     map_dfr(magrittr::extract, c("id","title"),
             .id = "datasource") %>%
     mutate(datasource = as.integer(datasource)) -> macro_data
 
+  # extract list element with ressources of different data sets
   package_list %>%
     map(chuck, "resources") -> only_ressources
 
+  # create empty list with lenght of ressources list
   temp_list_ressources <- vector("list", length = length(only_ressources))
 
+  # iterate over ressources list and store in df
   for (i in seq_along(only_ressources)) {
 
     only_ressources %>%
@@ -72,15 +83,24 @@ show_data <- function() {
     tidyr::pivot_wider(names_from = no_tag, values_from = name) -> tag_df_merge
 
   ressource_df %>%
-    dplyr::left_join(macro_data) %>%
-    dplyr::left_join(tag_df_merge) -> global_df
+    dplyr::left_join(macro_data, by = "datasource") %>%
+    dplyr::left_join(tag_df_merge, by = "datasource") -> global_df
 
   message("There are in total ", nrow(macro_data), " different datasets available.\n",
           "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
           distinct(tag_df, name))
 
-  return(global_df)
+  #return(global_df)
 
+  # check for external hosted datasets
+  if(external == FALSE){
+    urltools::url_parse(global_df$url) %>%
+      select(domain) %>%
+      bind_cols(global_df) %>%
+      filter(domain %in% "offenedaten-konstanz.de")
+  }
+
+  return(list_of_endpoints)
 }
 
 
