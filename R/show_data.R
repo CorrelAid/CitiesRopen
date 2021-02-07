@@ -16,7 +16,7 @@ library(stringr)
 
 # get package list with resources
 
-show_data <- function() {
+show_data <- function(tag = 1) {
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
 
   resp <- httr::GET(url)
@@ -75,21 +75,29 @@ show_data <- function() {
     dplyr::left_join(macro_data) %>%
     dplyr::left_join(tag_df_merge) -> global_df
 
-  message("There are in total ", nrow(macro_data), " different datasets available.\n",
-          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
-          distinct(tag_df, name))
-
-  return(global_df)
-
+  
+  ##Filter out datasets with their tag
+  if (tag == 1) {
+    message("There are in total ", nrow(macro_data), " different datasets available.\n",
+            "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
+            distinct(tag_df, name))
+    return(global_df)
+    } else {
+    global_df %>%
+    dplyr::filter(tag_no_1 == tag | tag_no_2 == tag | tag_no_3 == tag) -> filtered_global
+    message("There are in total ", nrow(filtered_global), " datasets under your selected category ", tag, ".")  
+    return(filtered_global)
+    }   
 }
 
 
 
-
 # tryout_stuff - not relevant for function call ---------------------------
-
+test2_return <- show_data("Bevölkerung")
 
 function_return <- show_data() # now the function returns two lists in which two dfs are stored
+
+
 
 
 
