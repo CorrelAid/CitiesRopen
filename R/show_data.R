@@ -16,7 +16,7 @@ library(stringr)
 
 # get package list with resources
 
-show_data <- function(tag = 1) {
+show_data <- function(tag = NULL) {
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
 
   resp <- httr::GET(url)
@@ -77,23 +77,30 @@ show_data <- function(tag = 1) {
 
   
   ##Filter out datasets with their tag
-  if (tag == 1) {
+  if (is.null(tag)) {  # Check if there is a filter
     message("There are in total ", nrow(macro_data), " different datasets available.\n",
             "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
             distinct(tag_df, name))
-    return(global_df)
+    return(global_df) # If there is no filter, the function returns all the datasets
     } else {
     global_df %>%
-    dplyr::filter(tag_no_1 == tag | tag_no_2 == tag | tag_no_3 == tag) -> filtered_global
-    message("There are in total ", nrow(filtered_global), " datasets under your selected category ", tag, ".")  
-    return(filtered_global)
+    dplyr::filter(tag_no_1 == tag | tag_no_2 == tag | tag_no_3 == tag) -> filtered_global #Checks the specified filter in all levels of tags
+    message("There are in total ", nrow(filtered_global), " datasets under the category ", tag, ".")  
+    return(filtered_global) # Returns only the datasets from the filter
     }   
 }
 
 
 
 # tryout_stuff - not relevant for function call ---------------------------
-test2_return <- show_data("Bevölkerung")
+
+#Test whether the function returns all datasets when no filter is specified
+test_nofilter <- show_data()
+#Test with one filter
+test_onefilter <- show_data ("Soziales")
+
+
+
 
 function_return <- show_data() # now the function returns two lists in which two dfs are stored
 
