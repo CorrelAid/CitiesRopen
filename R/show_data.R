@@ -82,27 +82,40 @@ show_data <- function(tag = NULL) {
             "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
             distinct(tag_df, name))
     return(global_df) # If there is no filter, the function returns all the datasets
-    } else {
+  } else {
     global_df %>%
-    dplyr::filter(tag_no_1 == tag | tag_no_2 == tag | tag_no_3 == tag) -> filtered_global #Checks the specified filter in all levels of tags
-    message("There are in total ", nrow(filtered_global), " datasets under the category ", tag, ".")  
+      dplyr::filter(tag_no_1 %in% tag | tag_no_2 %in% tag | tag_no_3 %in% tag) -> filtered_global #Checks the specified filter in all levels of tags
+      message("You have used the filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
+      for (i in 1:length(tag)){
+        message("There are in total ", nrow(filter(filtered_global, tag_no_1 == tag [i]| tag_no_2 %in% tag [i] | tag_no_3 %in% tag[i])), 
+                " datasets under the category ", tag[i], ".")
+      }
     return(filtered_global) # Returns only the datasets from the filter
-    }   
+  }     
 }
 
 
 
+
+
 # tryout_stuff - not relevant for function call ---------------------------
+function_return <- show_data() # now the function returns two lists in which two dfs are stored
+
 
 #Test whether the function returns all datasets when no filter is specified
 test_nofilter <- show_data()
 #Test with one filter
 test_onefilter <- show_data ("Soziales")
+#If I want several filters, I can store my filters in a list
+filters <- c("Soziales", "Umwelt und Klima")
+test_multifilter <- show_data(filters)
 
 
 
 
-function_return <- show_data() # now the function returns two lists in which two dfs are stored
+
+
+
 
 
 
