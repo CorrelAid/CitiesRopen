@@ -18,7 +18,7 @@ library(urltools)
 
 # get package list with resources
 
-show_data <- function(external = TRUE) {
+show_data <- function(external = TRUE, overview = TRUE) {
 
   # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
@@ -86,21 +86,28 @@ show_data <- function(external = TRUE) {
     dplyr::left_join(macro_data, by = "datasource") %>%
     dplyr::left_join(tag_df_merge, by = "datasource") -> global_df
 
-  message("There are in total ", nrow(macro_data), " different datasets available.\n",
-          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
-          distinct(tag_df, name))
 
-  #return(global_df)
+  }
+
 
   # check for external hosted datasets
   if(external == FALSE){
     urltools::url_parse(global_df$url) %>%
       select(domain) %>%
       bind_cols(global_df) %>%
-      filter(domain %in% "offenedaten-konstanz.de")
+      filter(domain %in% "offenedaten-konstanz.de") -> global_df
   }
 
-  return(list_of_endpoints)
+  if(overview == TRUE){
+    message("There are in total ", nrow(macro_data), " different datasets available.\n",
+          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
+          distinct(tag_df, name))
+
+  return(global_df)
+
+  #### überlegen ob nicht output als df sinnvoll ist
+
+  invisible(global_df)
 }
 
 
