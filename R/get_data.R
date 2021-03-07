@@ -5,7 +5,7 @@
 ##  Hands-on Tutorial for writing function in tidyverse: http://jonthegeek.com/2018/06/04/writing-custom-tidyverse-functions/
 
 ### get_data ###
-setwd('/Users/lukas/CitiesRopen/R')
+
 rm(list = ls())
 
 # load packages
@@ -22,8 +22,6 @@ library(data.table)
 ##Run the show_data function from the first function
 
 rm(list = ls())
-
-setwd("/Users/lukas/CitiesRopen/R/")
 
 source("show_data.R")
 
