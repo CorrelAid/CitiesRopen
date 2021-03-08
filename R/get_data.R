@@ -21,7 +21,8 @@ library(data.table)
 
 ##Run the show_data function from the first function
 
-setwd("/Users/lukas/CitiesRopen/R")
+rm(list = ls())
+
 source("show_data.R")
 
 ##Seting up an example list of URLs, which should be provided by the show_data()-Function!
@@ -33,23 +34,31 @@ function_return %>%
 
 lst = lst[4:10,]
 
-## Setting up Function
-
-get_data <- function(data){
-  for (i in 1:nrow(data)){
-    url <- data$url[i]
-  if (data$format[i] == "csv"){
-    basename <- data.table::fread(url) %>% ##For CSV Files https://www.rdocumentation.org/packages/data.table/versions/1.13.6/topics/fread
-    assign(paste(data$name[i]),.,envir = .GlobalEnv)}
-
-    #else if(data$format[i] == "xx")
-    #(message("Oh no"))
-  }
-  message("\n","A total number of ", nrow(data), " files were added to your environment")
+get_data <- function(data, download = "Environment"){
+  answer <- readline(prompt=message("If you continue, a total of ",nrow(data)," files are downloaded.\nDo you want to proceed? (Y/N)? \nPlease type the correct letter into the console and execute!"))
+  if (answer == "Y" | answer == "y" | answer == "Yes" | answer == "yes"){
+    if (download == "Environment"){
+      purrr::pwalk(.l = data,.f = function(...){
+        current <- tibble(...)
+        if (current$format == "csv"){
+          basename <- data.table::fread(current$url) %>%  ##For CSV Files https://www.rdocumentation.org/packages/data.table/versions/1.13.6/topics/fread
+            assign(paste(current$name),.,envir = .GlobalEnv)
+        }
+        ###Placeholder for subsequent File Formats, e.g.
+        # if (current$format == "txt"){
+        #   ...
+        # }
+      })
+    }
+    else if (download == "Local" | download == "local"){
+        dir.create("Open_Data_Konstanz")
+        purrr::pwalk(.l = data,.f = function(...){
+        current <- tibble(...)
+        utils::download.file(url = current$url, destfile = paste('./Open_Data_Konstanz/',current$name,'.',current$format, sep = ''), quiet = T)
+      })
+      } else (message("You have not specified a proper setting for download. Please come back later or change the settings"))
+  } else message("You have aborted the download. Please come back later or change the settings")
 }
 
-##Getting data
 lst %>%
-  get_data() #
-
-
+  get_data()

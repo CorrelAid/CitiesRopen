@@ -65,6 +65,7 @@ show_data <- function(external = TRUE, overview = TRUE) {
   package_list %>%
     map(purrr::pluck, "tags") -> only_tags
 
+
   temp_list_tags <- vector("list", length = length(only_tags))
 
   for (i in seq_along(only_tags)) {
@@ -118,7 +119,8 @@ show_data <- function(external = TRUE, overview = TRUE) {
 
 system.time(function_return <- show_data(overview = F))
 
-show_data(overview = F, external = F)
+
+
 
 
 tag_df %>%
