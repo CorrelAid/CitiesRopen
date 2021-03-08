@@ -63,7 +63,7 @@ show_data <- function(external = TRUE, overview = TRUE) {
   dplyr::bind_rows(temp_list_ressources) -> ressource_df
 
   package_list %>%
-    map(chuck, "tags") -> only_tags
+    map(purrr::pluck, "tags") -> only_tags
 
   temp_list_tags <- vector("list", length = length(only_tags))
 
@@ -87,7 +87,7 @@ show_data <- function(external = TRUE, overview = TRUE) {
     dplyr::left_join(tag_df_merge, by = "datasource") -> global_df
 
 
-  }
+
 
 
   # check for external hosted datasets
@@ -108,8 +108,8 @@ show_data <- function(external = TRUE, overview = TRUE) {
   #### überlegen ob nicht output als df sinnvoll ist
 
   invisible(global_df)
+  }
 }
-
 
 
 
