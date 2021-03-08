@@ -103,20 +103,22 @@ show_data <- function(external = TRUE, overview = TRUE) {
           "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
           distinct(tag_df, name))
 
-  return(global_df)
+  invisible(global_df)
 
   #### überlegen ob nicht output als df sinnvoll ist
 
-  invisible(global_df)
+
   }
+  invisible(global_df)
 }
 
 
 
 # tryout_stuff - not relevant for function call ---------------------------
 
-system.time(function_return <- show_data())
+system.time(function_return <- show_data(overview = F))
 
+show_data(overview = F, external = F)
 
 
 tag_df %>%
