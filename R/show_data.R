@@ -88,18 +88,11 @@ show_data <- function(tag = NULL, format_filter = NULL) {
   }
   
   #Add the messages 
-  global_df %>%
-    distinct(datasource) %>%
-    nrow() -> nb_datasets #Count how many datasets there are in the dataframe
-  
-  if(is.null(tag) & is.null(format_filter)){
-    message("There are in total ", nb_datasets, " different datasets available.\n",
-            "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
-            distinct(tag_df, name))
-  }
-
-  
-  if(!is.null(format_filter)){
+  if (is.null(tag) & !is.null(format_filter)) {
+    global_df %>%
+      distinct(datasource) %>%
+      nrow() -> nb_filtered_datasets
+    
     message("You have used the format filter(s) ", paste(format_filter, collapse = " and "), ".")
     
     for (i in 1:length(format_filter)){
@@ -108,17 +101,38 @@ show_data <- function(tag = NULL, format_filter = NULL) {
       message("There are in total ", nrow(distinct(byformat_df, datasource)), 
               " datasets in the format ", format_filter [i], ".")
     }
+  } else if (!is.null(tag) & is.null(format_filter)) {
+    message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
+    
+    for (i in 1:length(tag)){
+      global_df %>%
+        filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
+      message("There are in total ", nrow(distinct(bytag_df,datasource)), 
+              " datasets under the category ", tag[i], ".")
+    }
+    
+  } else if (!is.null(tag) & !is.null(format_filter)) {
+    message("You have used the category filter(s) ", paste(tag, collapse = " and "), " and the format filter ", paste(format_filter, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
+    for (i in 1:length(tag)){
+      global_df %>%
+        filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
+      message("There are in total ", nrow(distinct(bytag_df, datasource)), 
+              " datasets under the category ", tag[i], ".")
+      for (i in 1:length(format_filter)) {
+        bytag_df %>%
+          filter(format %in% format_filter[i]) -> bytag_byformat_df
+        message("In this category, there are ", nrow(distinct(bytag_byformat_df, datasource)),
+                " datasets with the format ", format_filter[i], ".")
+      }
+    }
+    
+  } else {
+    message("There are in total ", nrow(macro_data), " different datasets available.\n",
+            "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
+            distinct(tag_df, name))
   }
   
-  if(!is.null(tag)){
-    message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified.    
-      for (i in 1:length(tag)){
-        global_df %>%
-          filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-        message("There are in total ", nrow(distinct(bytag_df, datasource)), 
-                " datasets under the category ", tag[i], ".")
-   }
-  }
+
   return(global_df)
 }
 
@@ -129,12 +143,7 @@ show_data <- function(tag = NULL, format_filter = NULL) {
 
 
 
-
-
-
 # tryout_stuff - not relevant for function call ---------------------------
-function_return <- show_data() # now the function returns two lists in which two dfs are stored
-
 
 #Test whether the function returns all datasets when no filter is specified
 test_nofilter <- show_data()
@@ -149,50 +158,3 @@ test_format <- show_data(format_filter ="csv")
 
 
 
-### Working on the messages 
-## I am not sure to know whether it is good not to bind the messages with ifelse
-## So I kept it here
-if (is.null(tag) & !is.null(format_filter)) {
-  global_df %>%
-    distinct(datasource) %>%
-    nrow() -> nb_filtered_datasets
-  
-  message("You have used the format filter(s) ", paste(format_filter, collapse = " and "), ".")
-  
-  for (i in 1:length(format_filter)){
-    global_df %>%
-      filter(format %in% format_filter [i]) -> byformat_df
-    message("There are in total ", nrow(distinct(byformat_df, datasource)), 
-            " datasets in the format ", format_filter [i], ".")
-  }
-} else if (!is.null(tag) & is.null(format_filter)) {
-  message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
-  
-  for (i in 1:length(tag)){
-    global_df %>%
-      filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-    message("There are in total ", nrow(distinct(bytag_df,datasource)), 
-            " datasets under the category ", tag[i], ".")
-  }
-  
-} else if (!is.null(tag) & !is.null(format_filter)) {
-  message("You have used the category filter(s) ", paste(tag, collapse = " and "), " and the format filter ", format_filter, ".") #Indicate whether one or more filters have been specified. 
-  for (i in 1:length(tag)){
-    global_df %>%
-      filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-    message("There are in total ", nrow(distinct(bytag_df, datasource)), 
-            " datasets under the category ", tag[i], ".")
-    for (i in 1:length(format_filter)) {
-      bytag_df %>%
-        filter(format %in% format_filter[i]) -> bytag_byformat_df
-      message("In this category, there are ", nrow(distinct(bytag_byformat_df, datasource)),
-              " datasets with the format ", format_filter[i], ".")
-    }
-  }
-  
-} else {
-  message("There are in total ", nrow(macro_data), " different datasets available.\n",
-          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
-          distinct(tag_df, name))
-}
-return(global_df)
