@@ -117,8 +117,8 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
     for (i in 1:length(format_filter)){
       global_df %>%
         filter(format %in% format_filter [i]) -> byformat_df
-      message("There are in total ", nrow(distinct(byformat_df, datasource)), 
-              " datasets in the format ", format_filter [i], ".")
+      message("There are in total ", nrow(byformat_df), 
+              " resources in the format ", format_filter [i], ".")
     }
   } else if (!is.null(tag) & is.null(format_filter)) {
     message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
@@ -140,14 +140,14 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
       for (i in 1:length(format_filter)) {
         bytag_df %>%
           filter(format %in% format_filter[i]) -> bytag_byformat_df
-        message("In this category, there are ", nrow(distinct(bytag_byformat_df, datasource)),
-                " datasets with the format ", format_filter[i], ".")
+        message("In this category, there are ", nrow(bytag_byformat_df),
+                " resources with the format ", format_filter[i], ".")
       }
     }
     
   } else {
     message("There are in total ", nrow(macro_data), " different datasets available.\n",
-            "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
+            "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
             distinct(tag_df, name))
   }
   
@@ -161,13 +161,12 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
 
   if(overview == TRUE){
     message("There are in total ", nrow(macro_data), " different datasets available.\n",
-          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
+          "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
           distinct(tag_df, name))
 
   invisible(global_df)
 
 }
-   }
   invisible(global_df)
 }
 
@@ -195,15 +194,15 @@ system.time(function_return <- show_data(overview = F))
 # tryout_stuff - not relevant for function call ---------------------------
 
 #Test whether the function returns all datasets when no filter is specified
-test_nofilter <- show_data()
+test_nofilter <- show_data(overview = FALSE)
 #Test with one filter
-test_onefilter <- show_data ("Soziales")
+test_onefilter <- show_data (tag = "Soziales", overview = FALSE)
 #If I want several filters, I can store my filters in a list
 tag_filters <- c("Soziales", "Umwelt und Klima")
-test_multifilter <- show_data(tag_filters, format_filter = c("json", "csv"))
+test_multifilter <- show_data(tag = tag_filters, format_filter = c("json", "csv"), overview = FALSE)
 
 #If I want only datasets with csv format 
-test_format <- show_data(format_filter ="csv")
+test_format <- show_data(format_filter ="csv", overview = FALSE)
 
 
 
