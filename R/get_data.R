@@ -34,15 +34,15 @@ function_return %>%
 
 lst = lst[4:10,]
 
-get_data <- function(data, download = "Environment"){
+get_data <- function(data, download = "single"){
   answer <- readline(prompt=message("If you continue, a total of ",nrow(data)," files are downloaded.\nDo you want to proceed? (Y/N)? \nPlease type the correct letter into the console and execute!"))
   if (answer == "Y" | answer == "y" | answer == "Yes" | answer == "yes"){
-    if (download == "Environment"){
+    if (download == "Single" | download == "S"){
       purrr::pwalk(.l = data,.f = function(...){
         current <- tibble(...)
         if (current$format == "csv"){
           basename <- data.table::fread(current$url) %>%  ##For CSV Files https://www.rdocumentation.org/packages/data.table/versions/1.13.6/topics/fread
-            assign(paste(current$name),.,envir = .GlobalEnv)
+          assign(paste(current$name),.,envir = .GlobalEnv)
         }
         ###Placeholder for subsequent File Formats, e.g.
         # if (current$format == "txt"){
@@ -50,15 +50,43 @@ get_data <- function(data, download = "Environment"){
         # }
       })
     }
-    else if (download == "Local" | download == "local"){
-        dir.create("Open_Data_Konstanz")
-        purrr::pwalk(.l = data,.f = function(...){
+    else if (download == "Environment" | download == "E"){
+      List_Open_Data <- list()
+      purrr::pwalk(.l = data,.f = function(...){
         current <- tibble(...)
-        utils::download.file(url = current$url, destfile = paste('./Open_Data_Konstanz/',current$name,'.',current$format, sep = ''), quiet = T)
+        if (current$format == "csv"){
+          List_Open_Data <- append(List_Open_Data, data.table::fread(current$url))
+        }
       })
-      } else (message("You have not specified a proper setting for download. Please come back later or change the settings"))
-  } else message("You have aborted the download. Please come back later or change the settings")
-}
+    }
+    else if (download == "Local" | download == "L"){
+    dir.create("Open_Data_Konstanz")
+    purrr::pwalk(.l = data,.f = function(...){
+      current <- tibble(...)
+      utils::download.file(url = current$url, destfile = paste('./Open_Data_Konstanz/',current$name,'.',current$format, sep = ''), quiet = T)
+    })
+  }
+    else (message("You have not specified a proper setting for download. Please come back later or change the settings"))
+   } else message("You have aborted the download. Please come back later or change the settings")
+  }
+
+
+
 
 lst %>%
-  get_data()
+  get_data(download = "single")
+
+lst_new <- lst[3:5,]
+
+List_Open_Data <- append(List_Open_Data,purrr::pmap(.l = lst_new,.f = function(...){
+ current <- tibble(...)
+ data <- data.table::fread(current$url)
+}))
+
+leng(List_Open_Data)
+purrr::pwalk(.l = lst_new,.f = function(...){
+data <- list(data.table::fread(lst_new$url[1]))
+List_Open_Data_3 <- list()
+List_Open_Data_3 <- append(List_Open_Data_3, data)
+List_Open_Data[[length(List_Open_Data)+1]] <- data
+
