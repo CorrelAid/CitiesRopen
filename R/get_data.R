@@ -51,11 +51,13 @@ get_data <- function(data, download = "single"){
       })
     }
     else if (download == "Environment" | download == "E"){
-      List_Open_Data <- list()
+      assign("List_Open_Data_2",list(), envir = .GlobalEnv)
       purrr::pwalk(.l = data,.f = function(...){
         current <- tibble(...)
         if (current$format == "csv"){
-          List_Open_Data <- append(List_Open_Data, data.table::fread(current$url))
+          List_Open_Data_2 <- append(List_Open_Data_2, purrr::map(List_Open_Data_2, data.table::fread))
+          assign("List_Open_Data_2",List_Open_Data_2, envir = .GlobalEnv)
+
         }
       })
     }
@@ -72,15 +74,25 @@ get_data <- function(data, download = "single"){
 
 
 
-
 lst %>%
-  get_data(download = "single")
+  get_data(download = 'L')
 
 lst_new <- lst[3:5,]
 
-List_Open_Data <- append(List_Open_Data,purrr::pmap(.l = lst_new,.f = function(...){
- current <- tibble(...)
- data <- data.table::fread(current$url)
+
+y <- purrr::pwalk(.l = lst_new,.f = function(...){
+  current <- tibble(...)
+  if (current$format == "csv"){
+    List_Open_Data_2 <- append(list(List_Open_Data_2), purrr::map(current$url, data.table::fread))
+    return(List_Open_Data_2)
+  }
+})
+
+
+List_Open_Data <-
+append(List_Open_Data,purrr::pmap(.l = lst_new,.f = function(...){
+current <- tibble(...)
+data <- data.table::fread(current$url)
 }))
 
 leng(List_Open_Data)
