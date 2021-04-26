@@ -1,7 +1,7 @@
 Package: CitiesRopen
 Title: Provide an API Wrapper for the Open Data Portal of Konstanz
 Version: 0.0.0.9000
-Authors@R: person("Philipp", "Bosch", email = "philipp.bosch@uni-konstanz.de", role = "aut")
+Authors@R: person("Philipp", "Bosch", email = "philipp.bosch@uni-konstanz.de", role=c("aut", "cre"))
 Description: This package contains two major functions to access the Open Data Portal of Konstanz.
 License: MIT + file LICENSE
 Suggests: 

@@ -1,35 +1,3 @@
-
-#Theoretical Background:
-
-##  Basic Introduction to Programming with dplyr: https://cran.r-project.org/web/packages/dplyr/vignettes/programming.html
-##  Hands-on Tutorial for writing function in tidyverse: http://jonthegeek.com/2018/06/04/writing-custom-tidyverse-functions/
-
-# ### get_data ###
-#
-# # load packages
-# library(dplyr)
-# library(httr)
-# library(purrr)
-# library(jsonlite)
-# library(magrittr)
-# library(tidyr)
-# library(stringr)
-# library(rlang)
-# library(data.table)
-#
-# ##Run the show_data function from the first function
-#
-# rm(list = ls())
-#
-# source("show_data.R")
-#
-# ##Seting up an example list of URLs, which should be provided by the show_data()-Function!
-#
-# function_return %>%
-#   select(url,title, name, format) %>%
-#   .[28:38,]-> lst
-
-
 #' Get Data Function (no final description)
 #'
 #' @param data The data specified in the show_data function
@@ -38,7 +6,7 @@
 #' @return Returns the data from the
 #' @export
 #'
-#' @examples show_date(tag = 'XX') %>% get_data()
+#' @examples show_date(tag = 'Umwelt und Klima') %>% get_data()
 get_data <- function(data, download = "Environment"){
   answer <- readline(prompt=message("If you continue, a total of ",nrow(data)," files will be downloaded.\nDo you want to proceed? (Y/N)? \nPlease type the correct letter into the console and execute!"))
   # 1. Step: Stop, if there is no permission to download
@@ -74,12 +42,6 @@ get_data <- function(data, download = "Environment"){
     })
   }
 }
-
-
-### Working version
-
-##Testing
-# lst %>% get_data()
 
 
 
