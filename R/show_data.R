@@ -19,7 +19,7 @@ library(urltools)
 # get package list with resources
 
 
-show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filter = NULL) {
+show_data <- function(external = TRUE, tag = NULL, format = NULL, overview = TRUE) {
 
   # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
@@ -96,9 +96,9 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
 
 
   ##Filter out datasets with their tag
-  if (!is.null(format_filter)) {
+  if (!is.null(format)) {
     global_df %>%
-      dplyr::filter(format %in% format_filter) -> global_df
+      dplyr::filter(format %in% format) -> global_df
   }
 
   if(!is.null(tag)) {
@@ -107,20 +107,20 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
   }
 
   #Add the messages
-  if (is.null(tag) & !is.null(format_filter)) {
+  if (is.null(tag) & !is.null(format)) {
     global_df %>%
       distinct(datasource) %>%
       nrow() -> nb_filtered_datasets
 
-    message("You have used the format filter(s) ", paste(format_filter, collapse = " and "), ".")
+    message("You have used the format filter(s) ", paste(format, collapse = " and "), ".")
 
-    for (i in 1:length(format_filter)){
+    for (i in 1:length(format)){
       global_df %>%
-        filter(format %in% format_filter [i]) -> byformat_df
+        filter(format %in% format [i]) -> byformat_df
       message("There are in total ", nrow(byformat_df),
-              " resources in the format ", format_filter [i], ".")
+              " resources in the format ", format [i], ".")
     }
-  } else if (!is.null(tag) & is.null(format_filter)) {
+  } else if (!is.null(tag) & is.null(format)) {
     message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified.
 
     for (i in 1:length(tag)){
@@ -130,18 +130,18 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
               " datasets under the category ", tag[i], ".")
     }
 
-  } else if (!is.null(tag) & !is.null(format_filter)) {
-    message("You have used the category filter(s) ", paste(tag, collapse = " and "), " and the format filter ", paste(format_filter, collapse = " and "), ".") #Indicate whether one or more filters have been specified.
+  } else if (!is.null(tag) & !is.null(format)) {
+    message("You have used the category filter(s) ", paste(tag, collapse = " and "), " and the format filter ", paste(format, collapse = " and "), ".") #Indicate whether one or more filters have been specified.
     for (i in 1:length(tag)){
       global_df %>%
         filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
       message("There are in total ", nrow(distinct(bytag_df, datasource)),
               " datasets under the category ", tag[i], ".")
-      for (i in 1:length(format_filter)) {
+      for (i in 1:length(format)) {
         bytag_df %>%
-          filter(format %in% format_filter[i]) -> bytag_byformat_df
+          filter(format %in% format[i]) -> bytag_byformat_df
         message("In this category, there are ", nrow(bytag_byformat_df),
-                " resources with the format ", format_filter[i], ".")
+                " resources with the format ", format[i], ".")
       }
     }
 
@@ -199,10 +199,10 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
 # test_onefilter <- show_data (tag = "Soziales", overview = FALSE)
 # #If I want several filters, I can store my filters in a list
 # tag_filters <- c("Soziales", "Umwelt und Klima")
-# test_multifilter <- show_data(tag = tag_filters, format_filter = c("json", "csv"), overview = FALSE)
+# test_multifilter <- show_data(tag = tag_filters, format = c("json", "csv"), overview = FALSE)
 #
 # #If I want only datasets with csv format
-# test_format <- show_data(format_filter ="csv", overview = FALSE)
+# test_format <- show_data(format ="csv", overview = FALSE)
 
 
 
