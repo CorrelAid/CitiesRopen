@@ -10,6 +10,8 @@ library(magrittr)
 library(tidyr)
 library(stringr)
 library(urltools)
+library(dynutils)
+library(RecordLinkage)
 
 
 # define API endpoint
@@ -19,7 +21,7 @@ library(urltools)
 # get package list with resources
 
 
-show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filter = NULL) {
+show_data <- function(external = TRUE, tag = NULL, format = NULL,message = TRUE)  {
 
   # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
@@ -96,26 +98,46 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
     dplyr::left_join(tag_df_merge, by = "datasource") -> global_df
   
   
-  #Check if format filter matches the existing format
-  if (!is.null(format_filter) & isFALSE(format_filter %in% global_df$format)) {
-    message("The format filter(s) does not match the existing formats. The possible formats are:\n",
-            distinct(global_df,format))
+  
+  ##for the format function 
+  #First check that the filter is correct
+
+  if (!is.null(format) & isFALSE(all(format %in% global_df$format))) {
+    #Identify and store the filter(s) that is wrong 
+    wrong_format <- format[!format %in% global_df$format]
+    #Store the possible formats
+    possible_formats <- distinct(global_df,format)
+    possible_formats <- as.list(possible_formats$format)
+    
+    
+    stop("Your format filter(s) ", paste(wrong_format, collapse = " and "), " does not match the existing formats.Is this what you meant?\n",
+         paste(map_chr(wrong_format, ~ getBestMatch(.x, possible_formats)), collapse = ", "),
+         "\n\nAll possible formats are:\n",
+         paste(possible_formats, collapse = ", "), ".")
   }
   
-  ##Filter out datasets with their format
-  if (!is.null(format_filter)) {
+  
+  #Then if everything is correct
+  if (!is.null(format)) {
     global_df %>%
-      dplyr::filter(format %in% format_filter) -> global_df
+      dplyr::filter(format %in% format) -> global_df
   }
   
   
+  
+  #For the tag function 
   #Check if tag filter matches the existing categories
-  if(!is.null(tag) & isFALSE(tag %in% tag_df$name)){
-    message("The category filter(s) does not match the existing categories. The possible category filters are:\n",
-            distinct(tag_df,name), ". \nPlease check the filter(s) you entered.")
+  #alternative 
+  if(!is.null(tag) & isFALSE(all(tag %in% tag_df$name))){
+    wrong_tag <- tag[!tag %in% tag_df$name]
+    #Store the possible tags
+    possible_tags <- distinct(tag_df,name)
+    possible_tags <- as.list(possible_tags$name)
+    stop("Your category filter(s) ", paste(wrong_tag, collapse = ","), " does not match the existing categories. Is this what you meant?\n",
+         paste(map_chr(wrong_tag, ~ getBestMatch(.x, possible_tags)), collapse = ", "), ".",
+         "\n\nAll possible category filters are:\n",
+         paste(possible_tags, collapse = ", "), ". \nPlease check the filter(s) you entered.")
   }
-  
-  
   ##Filter out datasets with their tag
   if(!is.null(tag)) {
     global_df %>%
@@ -123,50 +145,34 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
   }
   
   #Add the messages 
-  if (is.null(tag) & !is.null(format_filter)) {
-    global_df %>%
-      distinct(datasource) %>%
-      nrow() -> nb_filtered_datasets
-    
-    message("You have used the format filter(s) ", paste(format_filter, collapse = " and "), ".")
-    
-    for (i in 1:length(format_filter)){
-      global_df %>%
-        filter(format %in% format_filter [i]) -> byformat_df
-      message("There are in total ", nrow(byformat_df), 
-              " resources in the format ", format_filter [i], ".")
-    }
-  } else if (!is.null(tag) & is.null(format_filter)) {
-    message("You have used the category filter(s) ", paste(tag, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
-    
-    for (i in 1:length(tag)){
-      global_df %>%
-        filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-      message("There are in total ", nrow(distinct(bytag_df,datasource)), 
-              " datasets under the category ", tag[i], ".")
-    }
-    
-  } else if (!is.null(tag) & !is.null(format_filter)) {
-    message("You have used the category filter(s) ", paste(tag, collapse = " and "), " and the format filter(s) ", paste(format_filter, collapse = " and "), ".") #Indicate whether one or more filters have been specified. 
-    for (i in 1:length(tag)){
-      global_df %>%
-        filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-        message("There are in total ", nrow(distinct(bytag_df, datasource)), 
-              " datasets under the category ", tag[i], ".")
-      for (i in 1:length(format_filter)) {
-        bytag_df %>%
-          filter(format %in% format_filter[i]) -> bytag_byformat_df
-        message("In this category, there are ", nrow(bytag_byformat_df),
-                " resources with the format ", format_filter[i], ".")
+  if (message == TRUE) {
+    if (!is.null(format)){
+      for (i in 1:length(format)){
+        global_df %>%
+          filter(format %in% format [i]) -> byformat_df
+        message("There are in total ", nrow(byformat_df), 
+                " resources in the format ", format [i], ".")
       }
     }
     
-  } else {
-    message("There are in total ", nrow(macro_data), " different datasets available.\n",
-            "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
-            distinct(tag_df, name))
+    if (!is.null(tag)) {
+      for (i in 1:length(tag)){
+        global_df %>%
+          filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
+        message("There are in total ", nrow(distinct(bytag_df,datasource)), 
+                " datasets under the category ", tag[i], ".")
+      }
+    }
+    
+    if (is.null(format) & is.null(tag)){
+      message("There are in total ", nrow(macro_data), " different datasets available.\n",
+              "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
+              paste(possible_tags, collapse =", "), ".")
+      
+    }
   }
   
+ 
   # check for external hosted datasets
   if(external == FALSE){
     urltools::url_parse(global_df$url) %>%
@@ -175,13 +181,6 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
       filter(domain %in% "offenedaten-konstanz.de") -> global_df
   }
 
-  if(overview == TRUE){
-    message("There are in total ", nrow(macro_data), " different datasets available.\n",
-          "These datasets belong to ", nrow(distinct(tag_df, name)), " groups. These groups are:\n",
-          distinct(tag_df, name))
-
-  #invisible(global_df)
-  }
   invisible(global_df)
 }
 
@@ -191,33 +190,96 @@ show_data <- function(external = TRUE, overview = TRUE, tag = NULL, format_filte
 
 
 
+#A function to create suggest another filter if there is an error
+getBestMatch <- function(user_filter, possible_filters){
+  purrr::map_dbl(possible_filters, ~RecordLinkage::jarowinkler(user_filter, .x)) %>%
+    magrittr::set_names(possible_filters) %>%
+    which.max %>%
+    names
+}
 
 
 
-  #### überlegen ob nicht output als df sinnvoll ist
+format_function <- function(){
+  #Check if the format filters are correct
+  if (!is.null(format) & isFALSE(all(format %in% global_df$format))) {
+    #Identify and store the filter(s) that is wrong 
+    wrong_format <- format[!format %in% global_df$format]
+    #Store the possible formats
+    possible_formats <- distinct(global_df,format)
+    possible_formats <- as.list(possible_formats$format)
+    
+    #Write an error message and suggest another filter
+    stop("Your format filter(s) ", paste(wrong_format, collapse = " and "), " does not match the existing formats.Is this what you meant?\n",
+         paste(map_chr(wrong_format, ~ getBestMatch(.x, possible_formats)), collapse = ", "),
+         "\n\nAll possible formats are:\n",
+         paste(possible_formats, collapse = ", "), ".")
+  }
+  
+  
+  #If format filters are correct, filter out the databases according to format filters
+  if (!is.null(format)) {
+    global_df %>%
+      dplyr::filter(format %in% format) -> global_df
+  }
+  
+}
+
+
+tag_function <- function() {
+  #Check if the tag filters are correct
+  if(!is.null(tag) & isFALSE(all(tag %in% tag_df$name))){
+    #Identify and store the filter(s) that is wrong 
+    wrong_tag <- tag[!tag %in% tag_df$name]
+    #Store the possible tags
+    possible_tags <- distinct(tag_df,name)
+    possible_tags <- as.list(possible_tags$name)
+    
+    #Write an error message and suggest another filter
+    stop("Your category filter(s) ", paste(wrong_tag, collapse = ","), " does not match the existing categories. Is this what you meant?\n",
+         paste(map_chr(wrong_tag, ~ getBestMatch(.x, possible_tags)), collapse = ", "), ".",
+         "\n\nAll possible category filters are:\n",
+         paste(possible_tags, collapse = ", "), ". \nPlease check the filter(s) you entered.")
+  }
+  ##Filter out datasets with their tag
+  if(!is.null(tag)) {
+    global_df %>%
+      dplyr::filter(if_any(starts_with("tag_no"), ~. %in% tag)) -> global_df
+  }
+  
+}
 
 
 
-
-
-
-system.time(function_return <- show_data(overview = F))
-
-
-
-
-# tryout_stuff - not relevant for function call ---------------------------
-
-#Test whether the function returns all datasets when no filter is specified
-test_nofilter <- show_data()
-#Test with one filter
-test_onefilter <- show_data (tag ="Soziales", overview = FALSE)
-#If I want several filters, I can store my filters in a list
-tag_filters <- c("Soziales", "Umwelt und Klima")
-test_multifilter <- show_data(tag = tag_filters, format_filter = c("json", "csv"), overview = FALSE)
-
-#If I want only datasets with csv format 
-test_format <- show_data(format_filter ="csv")
+message_function <- function() {
+  if (message == TRUE) {
+    if (!is.null(format)){
+      for (i in 1:length(format)){
+        global_df %>%
+          filter(format %in% format [i]) -> byformat_df
+        message("There are in total ", nrow(byformat_df), 
+                " resources in the format ", format [i], ".")
+      }
+    }
+    
+    if (!is.null(tag)) {
+      for (i in 1:length(tag)){
+        global_df %>%
+          filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
+        message("There are in total ", nrow(distinct(bytag_df,datasource)), 
+                " datasets under the category ", tag[i], ".")
+      }
+    }
+    
+    if (is.null(format) & is.null(tag)){
+      message("There are in total ", nrow(macro_data), " different datasets available.\n",
+              "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
+              paste(possible_tags, collapse =", "), ".")
+      
+    }
+  }
+  
+}
 
 
 
