@@ -1,13 +1,8 @@
 Package: CitiesRopen
-Title: What the Package Does (One Line, Title Case)
+Title: Provide an API Wrapper for the Open Data Portal of Konstanz
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Authors@R: person("Philipp", "Bosch", email = "philipp.bosch@uni-konstanz.de", role=c("aut", "cre"))
+Description: This package contains two major functions to access the Open Data Portal of Konstanz.
 License: MIT + file LICENSE
 Suggests: 
     testthat (>= 3.0.0)
@@ -18,3 +13,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 URL: https://github.com/PhilippMartinBosch/CitiesRopen
 BugReports: https://github.com/PhilippMartinBosch/CitiesRopen/issues
+Imports: 
+    httr,
+    dplyr,
+    purrr,
+    jsonlite,
+    data.table,
+    rlang,
+    stringr

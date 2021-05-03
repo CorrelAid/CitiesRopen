@@ -1,27 +1,7 @@
 ### show_data ###
 
 
-# load packages
-library(dplyr)
-library(httr)
-library(purrr)
-library(jsonlite)
-library(magrittr)
-library(tidyr)
-library(stringr)
-library(urltools)
-library(dynutils)
-library(RecordLinkage)
-
-
-# define API endpoint
-
-
-
-# get package list with resources
-
-
-show_data <- function(external = TRUE, tag = NULL, format = NULL,message = TRUE)  {
+show_data <- function(external = TRUE, tag = NULL, format = NULL, overview = TRUE) {
 
   # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
@@ -60,38 +40,37 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL,message = TRUE)
   # iterate over ressources list and store in df
 
   for (i in seq_along(only_ressources)) {
-    
+
     only_ressources %>%
       purrr::chuck(i) %>%
       purrr::map_dfr(magrittr::extract, c("url","name","format","resource_group_id"),
                      .id = "no_ressource") %>%
       dplyr::bind_cols(tibble(datasource = i)) -> temp_list_ressources[[i]]
   }
-  
+
   dplyr::bind_rows(temp_list_ressources) -> ressource_df
-  
+
   package_list %>%
     map(purrr::pluck, "tags") -> only_tags
 
 
 
   temp_list_tags <- vector("list", length = length(only_tags))
-  
+
   for (i in seq_along(only_tags)) {
-    
+
     only_tags %>%
       purrr::chuck(i) %>%
       purrr::map_dfr(magrittr::extract, c("name"),
                      .id = "no_tag") %>%
       dplyr::bind_cols(tibble(datasource = i)) -> temp_list_tags[[i]]
   }
-  
+
   dplyr::bind_rows(temp_list_tags) -> tag_df
-  
+
   tag_df %>%
     dplyr::mutate(no_tag = stringr::str_c("tag_no", "_",  no_tag)) %>%
     tidyr::pivot_wider(names_from = no_tag, values_from = name) -> tag_df_merge
-  
 
   ressource_df %>%
     dplyr::left_join(macro_data, by = "datasource") %>%
