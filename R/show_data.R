@@ -1,24 +1,6 @@
 ### show_data ###
 
 
-# load packages
-library(dplyr)
-library(httr)
-library(purrr)
-library(jsonlite)
-library(magrittr)
-library(tidyr)
-library(stringr)
-library(urltools)
-
-
-# define API endpoint
-
-
-
-# get package list with resources
-
-
 show_data <- function(external = TRUE, tag = NULL, format = NULL, overview = TRUE) {
 
   # define base url
@@ -178,31 +160,6 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, overview = TRU
 
 
 
-
-  #### überlegen ob nicht output als df sinnvoll ist
-#
-#
-#
-#
-#
-#
-# system.time(function_return <- show_data(overview = F))
-#
-#
-#
-#
-# # tryout_stuff - not relevant for function call ---------------------------
-#
-# #Test whether the function returns all datasets when no filter is specified
-# test_nofilter <- show_data(overview = FALSE)
-# #Test with one filter
-# test_onefilter <- show_data (tag = "Soziales", overview = FALSE)
-# #If I want several filters, I can store my filters in a list
-# tag_filters <- c("Soziales", "Umwelt und Klima")
-# test_multifilter <- show_data(tag = tag_filters, format = c("json", "csv"), overview = FALSE)
-#
-# #If I want only datasets with csv format
-# test_format <- show_data(format ="csv", overview = FALSE)
 
 
 
