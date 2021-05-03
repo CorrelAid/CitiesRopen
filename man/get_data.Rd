@@ -18,5 +18,5 @@ Returns the data from the
 Get Data Function (no final description)
 }
 \examples{
-show_date(tag = 'XX') \%>\% get_data()
+show_date(tag = 'Umwelt und Klima') \%>\% get_data()
 }
