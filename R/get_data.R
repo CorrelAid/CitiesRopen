@@ -6,7 +6,7 @@
 #' @return Returns the data from the
 #' @export
 #'
-#' @examples show_date(tag = 'Umwelt und Klima') %>% get_data()
+#' @examples show_data(tag = 'Umwelt und Klima') %>% get_data()
 get_data <- function(data, download = "Environment"){
   answer <- readline(prompt=message("If you continue, a total of ",nrow(data)," files will be downloaded.\nDo you want to proceed? (Y/N)? \nPlease type the correct letter into the console and execute!"))
   # 1. Step: Stop, if there is no permission to download
