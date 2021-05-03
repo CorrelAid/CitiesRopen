@@ -20,4 +20,8 @@ Imports:
     jsonlite,
     data.table,
     rlang,
-    stringr
+    stringr,
+    magrittr,
+    tidyr,
+    urltools,
+    RecordLinkage

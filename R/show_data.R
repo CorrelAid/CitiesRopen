@@ -178,23 +178,13 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
 
 
-#A function to create suggest another filter if there is an error
-#' Title
-#'
-#' @param user_filter
-#' @param possible_filters
-#'
-#' @return
-#'
-#'
-#' @examples
+
 getBestMatch <- function(user_filter, possible_filters){
   purrr::map_dbl(possible_filters, ~RecordLinkage::jarowinkler(user_filter, .x)) %>%
     magrittr::set_names(possible_filters) %>%
     which.max %>%
     names
 }
-
 
 
 
