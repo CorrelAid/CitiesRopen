@@ -40,7 +40,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
   # extract list element with ressources of different data sets
   package_list %>%
-    purrr::map(chuck, "resources") -> only_ressources
+    purrr::map(purrr::chuck, "resources") -> only_ressources
 
   # create empty list with lenght of ressources list
   temp_list_ressources <- vector("list", length = length(only_ressources))
@@ -53,7 +53,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
       purrr::chuck(i) %>%
       purrr::map_dfr(magrittr::extract, c("url","name","format","resource_group_id"),
                      .id = "no_ressource") %>%
-      dplyr::bind_cols(tibble(datasource = i)) -> temp_list_ressources[[i]]
+      dplyr::bind_cols(dplyr::tibble(datasource = i)) -> temp_list_ressources[[i]]
   }
 
   dplyr::bind_rows(temp_list_ressources) -> ressource_df
@@ -71,7 +71,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
       purrr::chuck(i) %>%
       purrr::map_dfr(magrittr::extract, c("name"),
                      .id = "no_tag") %>%
-      dplyr::bind_cols(tibble(datasource = i)) -> temp_list_tags[[i]]
+      dplyr::bind_cols(dplyr::tibble(datasource = i)) -> temp_list_tags[[i]]
   }
 
   dplyr::bind_rows(temp_list_tags) -> tag_df

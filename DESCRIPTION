@@ -24,4 +24,5 @@ Imports:
     magrittr,
     tidyr,
     urltools,
-    RecordLinkage
+    RecordLinkage,
+    tibble
