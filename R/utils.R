@@ -4,7 +4,7 @@
 #' @export
 #'
 #' @examples
-create_logo <- function(){
+create_logo <- function(...){
   imgurl <- "https://cdn.pixabay.com/photo/2013/07/12/16/51/mexico-city-151380_1280.png"
   hexSticker::sticker(imgurl,
           package="CitiesRopen",
@@ -23,3 +23,17 @@ create_logo <- function(){
           filename="man/figures/logo_package.png")
 }
 
+#' Stopping a function without throwing an error messages
+#'
+#' @param ...
+#'
+#' @noRd
+#'
+#' @return Stops the execution of an script without printing an error messsage
+#' @export
+#'
+#' @examples
+stopQuietly <- function(...) {
+  blankMsg <- sprintf("\r%s\r", paste(rep(" ", getOption("width")-1L), collapse=" "));
+  stop(simpleError(blankMsg));
+}
