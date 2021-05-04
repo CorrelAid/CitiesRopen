@@ -8,10 +8,17 @@
 #'
 #' @examples show_data(tag = 'Umwelt und Klima') %>% get_data()
 get_data <- function(data, download = "Environment"){
-  answer <- readline(prompt=message("If you continue, a total of ",nrow(data)," files will be downloaded.\nDo you want to proceed? (Y/N)? \nPlease type the correct letter into the console and execute!"))
+  cli({
+    cli_h2("Security Check")
+      cli_text("If you continue, a total of ",nrow(data), " Files will be downloaded")
+      cli_alert_warning("Do you want to proceed? (Y/N)?")
+      cli_text("Please type the correct letter into the console and press Enter!")
+  })
+  answer <- readline()
   # 1. Step: Stop, if there is no permission to download
   if (answer == "N" | answer == "n" | answer == "No" | answer == "no"){
-    stop("You have aborted the download. Please run the function again!")}
+  cli_alert_danger("You have aborted the download. Please run the function again!")
+  stopQuietly()}
   # 2. Step: Evaluate download option and start downloading
   if (download == "Environment" | download == "E"){
       assign("List_Open_Data",list(), envir = .GlobalEnv)
@@ -42,10 +49,4 @@ get_data <- function(data, download = "Environment"){
     })
   }
 }
-
-
-
-
-
-
 
