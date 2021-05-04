@@ -25,4 +25,5 @@ Imports:
     tidyr,
     urltools,
     RecordLinkage,
-    tibble
+    tibble,
+    cli
