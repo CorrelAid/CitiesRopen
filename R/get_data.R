@@ -29,16 +29,25 @@ get_data <- function(data, download = "Environment"){
         if (current$format == "csv"){
           List_Open_Data <<- append(List_Open_Data, list(data.table::fread(current$url)))
           names(List_Open_Data)[length(List_Open_Data)] <<- current$name
+          cli::cli({
+            cli::cli_text("Downloading {current$name} of type {current$format}")
+            cli::cli_alert_success("Done")
+          })
         }
         #JSON: Define and Apply Fetcher
         else if (current$format == "json") {
           List_Open_Data <<- append(List_Open_Data, list (jsonlite::fromJSON(txt = current$url, flatten = TRUE)))
           names(List_Open_Data)[length(List_Open_Data)] <<- current$name
+          cli::cli({
+          cli::cli_text("Downloading {current$name} of type {current$format}")
+          cli::cli_alert_success("Done")
+          })
         }
         #Others: Append URL for further analysis
         else {
           List_Open_Data <<- append(List_Open_Data, list(current$url))
           names(List_Open_Data)[length(List_Open_Data)] <<- current$name
+          cli::cli_alert_warning("Not able to download {current$name} of type {.emph {current$format}}")
         }
       })
     }
