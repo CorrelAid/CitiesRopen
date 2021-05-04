@@ -8,17 +8,18 @@
 #'
 #' @examples show_data(tag = 'Umwelt und Klima') %>% get_data()
 get_data <- function(data, download = "Environment"){
-  cli({
-    cli_h2("Security Check")
-      cli_text("If you continue, a total of ",nrow(data), " Files will be downloaded")
-      cli_alert_warning("Do you want to proceed? (Y/N)?")
-      cli_text("Please type the correct letter into the console and press Enter!")
+  cli::cli({
+    cli::cli_div(theme = list(span.emph = list(color = "orange")))
+    cli::cli_h1("Download Authorization")
+    cli::cli_text("You have selected a total of {nrow(data)} data sets!")
+    cli::cli_alert("{.emph Do you want to start the download (Y/N)?}")
+    cli::cli_text("Please type your answer into the console and press Enter!")
   })
   answer <- readline()
   # 1. Step: Stop, if there is no permission to download
   if (answer == "N" | answer == "n" | answer == "No" | answer == "no"){
-  cli_alert_danger("You have aborted the download. Please run the function again!")
-  stopQuietly()}
+  cli::cli_alert_danger("You have aborted the download. Please run the function again!")
+  CitiesRopen:::stopQuietly()}
   # 2. Step: Evaluate download option and start downloading
   if (download == "Environment" | download == "E"){
       assign("List_Open_Data",list(), envir = .GlobalEnv)
@@ -48,5 +49,10 @@ get_data <- function(data, download = "Environment"){
       utils::download.file(url = current$url, destfile = paste('./Open_Data_Konstanz/',current$name,'.',current$format, sep = ''), quiet = T)
     })
   }
+  cli::cli({
+    cli::cli_h1("Done")
+    cli::cli_alert_success("Congratulations, your download has been successfully completed!")
+    cli::cli_text("For more information, please refer to the documentation.")
+  })
 }
 
