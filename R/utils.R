@@ -1,7 +1,6 @@
 #' Create Logo
 #' @noRd
 #' @return Creates the package logo
-#' @export
 #'
 #' @examples
 create_logo <- function(...){
@@ -26,11 +25,8 @@ create_logo <- function(...){
 #' Stopping a function without throwing an error messages
 #'
 #' @param ...
-#'
 #' @noRd
-#'
 #' @return Stops the execution of an script without printing an error messsage
-#' @export
 #'
 #' @examples
 stopQuietly <- function(...) {
