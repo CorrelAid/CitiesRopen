@@ -16,7 +16,7 @@ get_data <- function(data, download = "Environment"){
   if (download == "Environment" | download == "E"){
       assign("List_Open_Data",list(), envir = .GlobalEnv)
       purrr::pwalk(.l = data,.f = function(...){
-        current <- tibble(...)
+        current <- tibble::tibble(...)
         #CSV: Define and Apply Fetcher
         if (current$format == "csv"){
           List_Open_Data <<- append(List_Open_Data, list(data.table::fread(current$url)))
@@ -37,7 +37,7 @@ get_data <- function(data, download = "Environment"){
   else if (download == "Local" | download == "L"){
     dir.create("Open_Data_Konstanz")
     purrr::pwalk(.l = data,.f = function(...){
-      current <- tibble(...)
+      current <- tibble::tibble(...)
       utils::download.file(url = current$url, destfile = paste('./Open_Data_Konstanz/',current$name,'.',current$format, sep = ''), quiet = T)
     })
   }
