@@ -209,20 +209,8 @@ message_function <- function(global_df){
     unique() %>%
     purrr::discard(is.na) -> format_list_message
 
+  message_overview_show_data(n_datasources_message, n_datasets_message, tag_list_message, format_list_message)
 
-
-  cli::cli({
-    cli::cli_h1("Query result")
-    cli::cli_alert_info("Your query resulted in {n_datasources_message} data sourc{?e/es}.")
-    cli::cli_h2("Amount of data sets")
-    cli::cli_alert_info("In total there {?is/are} {n_datasets_message} data se{?t/ts} associated with these data sources.")
-    cli::cli_h2("Different groups/tags")
-    cli::cli_alert_info("{?This/These} {n_datasets_message} data se{?t/ts} belon{?gs/g} to the following groups and can be filtered accordingly:")
-    cli::cli_ul(tag_list_message)
-    cli::cli_h2("File format of data sets")
-    cli::cli_alert_info("{?This/These} {n_datasets_message} data se{?t/ts} include the following file formats and can be filtered accordingly:")
-    cli::cli_ul(format_list_message)
-  })
 }
 
 
