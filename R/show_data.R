@@ -11,6 +11,96 @@
 #' @examples
 show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE) {
 
+
+  global_df <- create_global_df()
+
+  ### create global containers for tags and formats
+  n_datasources <- dplyr::n_distinct(global_df$datasource)
+  n_datasets <- nrow(global_df)
+
+  global_df %>%
+    dplyr::select(dplyr::starts_with("tag")) %>%
+    as.matrix() %>%
+    as.vector() %>%
+    unique() %>%
+    purrr::discard(is.na) -> tag_list
+
+  global_df %>%
+    dplyr::select(format) %>%
+    as.matrix() %>%
+    as.vector() %>%
+    unique() %>%
+    purrr::discard(is.na) -> format_list
+
+
+  # check for external hosted datasets
+  if(external == FALSE){
+
+    global_df <- filter_external(global_df)
+
+  }
+
+
+  #For the tag function
+  #Check if tag filter matches the existing categories
+
+  #Store the possible tags
+
+  if(!is.null(tag) & isFALSE(all(tag %in% tag_list))){
+    wrong_tag <- tag[!tag %in% tag_list]
+
+    stop("Your category filter(s) ", paste(wrong_tag, collapse = ","), " does not match the existing categories. Is this what you meant?\n",
+         paste(purrr::map_chr(wrong_tag, ~ getBestMatch(.x, tag_list)), collapse = ", "), ".",
+         "\n\nAll possible category filters are:\n",
+         paste(tag_list, collapse = ", "), ". \nPlease check the filter(s) you entered.")
+  }
+
+  ##Filter out datasets with their tag
+  if(!is.null(tag)) {
+    global_df %>%
+      dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% tag)) -> global_df
+  }
+
+
+
+  ##for the format function
+  #First check that the filter is correct
+
+  if (!is.null(format) & isFALSE(all(format %in% format_list))) {
+    #Identify and store the filter(s) that is wrong
+    wrong_format <- format[!format %in% format_list]
+
+
+    stop("Your format filter(s) ", paste(wrong_format, collapse = " and "), " does not match the existing formats.Is this what you meant?\n",
+         paste(purrr::map_chr(wrong_format, ~ getBestMatch(.x, format_list)), collapse = ", "),
+         "\n\nAll possible formats are:\n",
+         paste(format_list, collapse = ", "), ".")
+  }
+
+
+  #Then if everything is correct
+  if (!is.null(format)) {
+
+    input_format <- format
+
+    global_df %>%
+      dplyr::filter(format %in% input_format) -> global_df
+  }
+
+
+  #Add the messages
+  if (message == TRUE) {
+    message_function(global_df)
+  }
+
+  invisible(global_df)
+}
+
+
+
+### helper function
+create_global_df <- function(){
+
   # define base url
   url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
 
@@ -34,13 +124,13 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
   package_list %>%
     purrr::map_dfr(magrittr::extract, c("id","title"),
-            .id = "datasource") %>%
+                   .id = "datasource") %>%
     dplyr::mutate(datasource = as.integer(datasource)) -> macro_data
 
 
   # extract list element with ressources of different data sets
   package_list %>%
-    purrr::map(purrr::chuck, "resources") -> only_ressources
+    purrr::map(purrr::pluck, "resources") -> only_ressources
 
   # create empty list with lenght of ressources list
   temp_list_ressources <- vector("list", length = length(only_ressources))
@@ -82,102 +172,61 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
   ressource_df %>%
     dplyr::left_join(macro_data, by = "datasource") %>%
-    dplyr::left_join(tag_df_merge, by = "datasource") -> global_df
+    dplyr::left_join(tag_df_merge, by = "datasource") %>%
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ifelse(.=="", NA, as.character(.)))) -> global_df
+}
+
+
+### helper function
+filter_external <- function(global_df) {
+  urltools::url_parse(global_df$url) %>%
+    dplyr::select(domain) %>%
+    dplyr::bind_cols(global_df) %>%
+    dplyr::filter(domain %in% "offenedaten-konstanz.de")
+}
 
 
 
-  # check for external hosted datasets
-  if(external == FALSE){
-    urltools::url_parse(global_df$url) %>%
-      dplyr::select(domain) %>%
-      dplyr::bind_cols(global_df) %>%
-      dplyr::filter(domain %in% "offenedaten-konstanz.de") -> global_df
-  }
+### helper function
 
-  ##for the format function
-  #First check that the filter is correct
+message_function <- function(global_df){
 
-  if (!is.null(format) & isFALSE(all(format %in% global_df$format))) {
-    #Identify and store the filter(s) that is wrong
-    wrong_format <- format[!format %in% global_df$format]
-    #Store the possible formats
-    possible_formats <- dplyr::distinct(global_df,format)
-    possible_formats <- as.list(possible_formats$format)
+  ### create  containers for tags and formats
+  n_datasources_message <- dplyr::n_distinct(global_df$datasource)
+  n_datasets_message <- nrow(global_df)
 
+  global_df %>%
+    dplyr::select(dplyr::starts_with("tag")) %>%
+    as.matrix() %>%
+    as.vector() %>%
+    unique() %>%
+    purrr::discard(is.na) -> tag_list_message
 
-    stop("Your format filter(s) ", paste(wrong_format, collapse = " and "), " does not match the existing formats.Is this what you meant?\n",
-         paste(purrr::map_chr(wrong_format, ~ getBestMatch(.x, possible_formats)), collapse = ", "),
-         "\n\nAll possible formats are:\n",
-         paste(possible_formats, collapse = ", "), ".")
-  }
-
-
-  #Then if everything is correct
-  if (!is.null(format)) {
-    global_df %>%
-      dplyr::filter(format %in% format) -> global_df
-  }
+  global_df %>%
+    dplyr::select(format) %>%
+    as.matrix() %>%
+    as.vector() %>%
+    unique() %>%
+    purrr::discard(is.na) -> format_list_message
 
 
 
-  #For the tag function
-  #Check if tag filter matches the existing categories
-
-  #Store the possible tags
-  possible_tags <- dplyr::distinct(tag_df,name)
-  possible_tags <- as.list(possible_tags$name)
-
-  if(!is.null(tag) & isFALSE(all(tag %in% tag_df$name))){
-    wrong_tag <- tag[!tag %in% tag_df$name]
-
-    stop("Your category filter(s) ", paste(wrong_tag, collapse = ","), " does not match the existing categories. Is this what you meant?\n",
-         paste(purrr::map_chr(wrong_tag, ~ getBestMatch(.x, possible_tags)), collapse = ", "), ".",
-         "\n\nAll possible category filters are:\n",
-         paste(possible_tags, collapse = ", "), ". \nPlease check the filter(s) you entered.")
-  }
-  ##Filter out datasets with their tag
-  if(!is.null(tag)) {
-    global_df %>%
-      dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% tag)) -> global_df
-  }
-
-  #Add the messages
-  if (message == TRUE) {
-    if (!is.null(format)){
-      for (i in 1:length(format)){
-        global_df %>%
-          dplyr::filter(format %in% format [i]) -> byformat_df
-        message("There are in total ", nrow(byformat_df),
-                " resources in the format ", format [i], ".")
-      }
-    }
-
-    if (!is.null(tag)) {
-      for (i in 1:length(tag)){
-        global_df %>%
-          dplyr::filter(if_any(starts_with("tag_no"), ~. %in% tag [i])) -> bytag_df
-        message("There are in total ", nrow(distinct(bytag_df,datasource)),
-                " datasets under the category ", tag[i], ".")
-      }
-    }
-
-    if (is.null(format) & is.null(tag)){
-      message("There are in total ", nrow(macro_data), " different datasets available.\n",
-              "These datasets belong to ", nrow(distinct(tag_df, name)), " categories. These categories are:\n",
-              paste(possible_tags, collapse =", "), ".")
-
-    }
-  }
-
-  invisible(global_df)
+  cli::cli_h1("Query result")
+  cli::cli_alert_info("Your query resulted in {n_datasources_message} data sourc{?e/es}.")
+  cli::cli_h2("Amount of data sets")
+  cli::cli_alert_info("In total there {?is/are} {n_datasets_message} data se{?t/ts} associated with these data sources.")
+  cli::cli_h2("Different groups/tags")
+  cli::cli_alert_info("{?This/These} {n_datasets_message} data se{?t/ts} belon{?gs/g} to the following groups and can be filtered accordingly:")
+  cli::cli_ul(tag_list_message)
+  cli::cli_h2("File format of data sets")
+  cli::cli_alert_info("{?This/These} {n_datasets_message} data se{?t/ts} include the following file formats and can be filtered accordingly:")
+  cli::cli_ul(format_list_message)
 }
 
 
 
 
-
-
-
+### helper function
 
 getBestMatch <- function(user_filter, possible_filters){
   purrr::map_dbl(possible_filters, ~RecordLinkage::jarowinkler(user_filter, .x)) %>%
