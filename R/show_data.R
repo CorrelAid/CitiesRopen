@@ -9,6 +9,7 @@
 #' @export
 #'
 #' @examples
+
 show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE) {
 
 
@@ -41,44 +42,52 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
   }
 
 
-  #For the tag function
   #Check if tag filter matches the existing categories
-
-  #Store the possible tags
-
   if(!is.null(tag) & isFALSE(all(tag %in% tag_list))){
     wrong_tag <- tag[!tag %in% tag_list]
-
-    stop("Your category filter(s) ", paste(wrong_tag, collapse = ","), " does not match the existing categories. Is this what you meant?\n",
-         paste(purrr::map_chr(wrong_tag, ~ getBestMatch(.x, tag_list)), collapse = ", "), ".",
-         "\n\nAll possible category filters are:\n",
-         paste(tag_list, collapse = ", "), ". \nPlease check the filter(s) you entered.")
+    suggested_tag_filters <- suggest_filter_function(wrong_tag, tag_list)
+    
+    stop(cli::format_error(c(
+      "Your category {?filter/filters} {.wrong_tag {wrong_tag}} {?does/do} not match the existing categories.", 
+      "x" = "Is this what you meant?",
+      "{.var {suggested_tag_filters}}",
+      "",
+      "i" = "All possible category filters are:",
+      "{tag_list}", 
+      "",
+      "!" = "Please check the filter(s) you entered."
+    )))
   }
-
-  ##Filter out datasets with their tag
+  
+  #Filter out data sets with tags
   if(!is.null(tag)) {
     global_df %>%
       dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% tag)) -> global_df
   }
 
-
-
-  ##for the format function
-  #First check that the filter is correct
-
+  
+  
+  
+  #Check if format filters are correct
   if (!is.null(format) & isFALSE(all(format %in% format_list))) {
     #Identify and store the filter(s) that is wrong
     wrong_format <- format[!format %in% format_list]
+    suggested_format_filters <- suggest_filter_function(wrong_format, format_list)
 
-
-    stop("Your format filter(s) ", paste(wrong_format, collapse = " and "), " does not match the existing formats.Is this what you meant?\n",
-         paste(purrr::map_chr(wrong_format, ~ getBestMatch(.x, format_list)), collapse = ", "),
-         "\n\nAll possible formats are:\n",
-         paste(format_list, collapse = ", "), ".")
+    stop(cli::format_error(c(
+      "Your format {?filter/filters} {.wrong_format {wrong_format}} {?does/do} not match the existing formats.",
+      "x" = "Is this what you meant?",
+      "{.var {suggested_format_filters}}",
+      "",
+      "i" =  "All possible formats are:",
+      "{format_list}",
+      "",
+      "!" = "Please check the format filters you entered."
+    )))
   }
 
 
-  #Then if everything is correct
+  #Filter out data sets with formats
   if (!is.null(format)) {
 
     input_format <- format
@@ -217,15 +226,15 @@ message_function <- function(global_df){
 
 
 ### helper function
-
-getBestMatch <- function(user_filter, possible_filters){
-  purrr::map_dbl(possible_filters, ~RecordLinkage::jarowinkler(user_filter, .x)) %>%
-    magrittr::set_names(possible_filters) %>%
-    which.max %>%
-    names
+matching_function <- function(user_filter,possible_filters){
+  results <- stringdist::stringdist(user_filter, possible_filters, method = "jw")
+  best <- which(results == min(results))[1]
+  return(possible_filters[best])
 }
 
-
+suggest_filter_function <- function(user_filter, possible_filters){
+  purrr::map(user_filter, matching_function, possible_filters)
+}
 
 
 
