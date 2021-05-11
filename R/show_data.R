@@ -13,7 +13,7 @@
 show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE) {
 
 
-  global_df <- create_global_df()
+  global_df <- helper_create_global_df()
 
   ### create global containers for tags and formats
   n_datasources <- dplyr::n_distinct(global_df$datasource)
@@ -37,7 +37,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
   # check for external hosted datasets
   if(external == FALSE){
 
-    global_df <- filter_external(global_df)
+    global_df <- helper_filter_external(global_df)
 
   }
 
@@ -45,46 +45,27 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
   #Check if tag filter matches the existing categories
   if(!is.null(tag) & isFALSE(all(tag %in% tag_list))){
     wrong_tag <- tag[!tag %in% tag_list]
-    suggested_tag_filters <- suggest_filter_function(wrong_tag, tag_list)
-    
-    stop(cli::format_error(c(
-      "Your category {?filter/filters} {.wrong_tag {wrong_tag}} {?does/do} not match the existing categories.", 
-      "x" = "Is this what you meant?",
-      "{.var {suggested_tag_filters}}",
-      "",
-      "i" = "All possible category filters are:",
-      "{tag_list}", 
-      "",
-      "!" = "Please check the filter(s) you entered."
-    )))
+    suggested_tag_filters <- helper_suggest_filter_tags(wrong_tag, tag_list)
+
+    helper_message_matching_tag(wrong_tag, suggested_tag_filters, tag_list)
+    helper_stopQuietly()
   }
-  
+
   #Filter out data sets with tags
   if(!is.null(tag)) {
     global_df %>%
       dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% tag)) -> global_df
   }
 
-  
-  
-  
   #Check if format filters are correct
   if (!is.null(format) & isFALSE(all(format %in% format_list))) {
     #Identify and store the filter(s) that is wrong
     wrong_format <- format[!format %in% format_list]
-    suggested_format_filters <- suggest_filter_function(wrong_format, format_list)
+    suggested_format_filters <- helper_suggest_filter_format(wrong_format, format_list)
 
-    stop(cli::format_error(c(
-      "Your format {?filter/filters} {.wrong_format {wrong_format}} {?does/do} not match the existing formats.",
-      "x" = "Is this what you meant?",
-      "{.var {suggested_format_filters}}",
-      "",
-      "i" =  "All possible formats are:",
-      "{format_list}",
-      "",
-      "!" = "Please check the format filters you entered."
-    )))
-  }
+    helper_message_matching_filter(wrong_format, suggested_format_filters, format_list)
+    helper_stopQuietly()
+    }
 
 
   #Filter out data sets with formats
@@ -99,7 +80,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
   #Add the messages
   if (message == TRUE) {
-    message_function(global_df)
+    helper_message_show_data(global_df)
   }
 
   invisible(global_df)
@@ -107,134 +88,7 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
 
 
 
-### helper function
-create_global_df <- function(){
 
-  # define base url
-  url <- "https://offenedaten-konstanz.de/api/3/action/current_package_list_with_resources"
-
-  # get json file with ressources
-
-  resp <- httr::GET(url)
-  if (httr::http_type(resp) != "application/json") {
-    stop("API did not return json", call. = FALSE)
-  }
-
-
-  # parse json file to r list object
-  parsed <- httr::content(resp, "text", encoding = "UTF-8") %>%
-    jsonlite::fromJSON(simplifyVector = FALSE, flatten = TRUE)
-
-  # extract list element of interest
-  parsed %>%
-    purrr::chuck("result", 1) -> package_list
-
-  # extract title and id of available datasets and save as df
-
-  package_list %>%
-    purrr::map_dfr(magrittr::extract, c("id","title"),
-                   .id = "datasource") %>%
-    dplyr::mutate(datasource = as.integer(datasource)) -> macro_data
-
-
-  # extract list element with ressources of different data sets
-  package_list %>%
-    purrr::map(purrr::pluck, "resources") -> only_ressources
-
-  # create empty list with lenght of ressources list
-  temp_list_ressources <- vector("list", length = length(only_ressources))
-
-  # iterate over ressources list and store in df
-
-  for (i in seq_along(only_ressources)) {
-
-    only_ressources %>%
-      purrr::chuck(i) %>%
-      purrr::map_dfr(magrittr::extract, c("url","name","format","resource_group_id"),
-                     .id = "no_ressource") %>%
-      dplyr::bind_cols(dplyr::tibble(datasource = i)) -> temp_list_ressources[[i]]
-  }
-
-  dplyr::bind_rows(temp_list_ressources) -> ressource_df
-
-  package_list %>%
-    purrr::map(purrr::pluck, "tags") -> only_tags
-
-
-
-  temp_list_tags <- vector("list", length = length(only_tags))
-
-  for (i in seq_along(only_tags)) {
-
-    only_tags %>%
-      purrr::chuck(i) %>%
-      purrr::map_dfr(magrittr::extract, c("name"),
-                     .id = "no_tag") %>%
-      dplyr::bind_cols(dplyr::tibble(datasource = i)) -> temp_list_tags[[i]]
-  }
-
-  dplyr::bind_rows(temp_list_tags) -> tag_df
-
-  tag_df %>%
-    dplyr::mutate(no_tag = stringr::str_c("tag_no", "_",  no_tag)) %>%
-    tidyr::pivot_wider(names_from = no_tag, values_from = name) -> tag_df_merge
-
-  ressource_df %>%
-    dplyr::left_join(macro_data, by = "datasource") %>%
-    dplyr::left_join(tag_df_merge, by = "datasource") %>%
-    dplyr::mutate(dplyr::across(dplyr::everything(), ~ifelse(.=="", NA, as.character(.)))) -> global_df
-}
-
-
-### helper function
-filter_external <- function(global_df) {
-  urltools::url_parse(global_df$url) %>%
-    dplyr::select(domain) %>%
-    dplyr::bind_cols(global_df) %>%
-    dplyr::filter(domain %in% "offenedaten-konstanz.de")
-}
-
-
-
-### helper function
-
-message_function <- function(global_df){
-
-  ### create  containers for tags and formats
-  n_datasources_message <- dplyr::n_distinct(global_df$datasource)
-  n_datasets_message <- nrow(global_df)
-
-  global_df %>%
-    dplyr::select(dplyr::starts_with("tag")) %>%
-    as.matrix() %>%
-    as.vector() %>%
-    unique() %>%
-    purrr::discard(is.na) -> tag_list_message
-
-  global_df %>%
-    dplyr::select(format) %>%
-    as.matrix() %>%
-    as.vector() %>%
-    unique() %>%
-    purrr::discard(is.na) -> format_list_message
-
-  message_overview_show_data(n_datasources_message, n_datasets_message, tag_list_message, format_list_message)
-
-}
-
-
-
-
-### helper function
-matching_function <- function(user_filter,possible_filters){
-  results <- stringdist::stringdist(user_filter, possible_filters, method = "jw")
-  best <- which(results == min(results))[1]
-  return(possible_filters[best])
-}
-
-suggest_filter_function <- function(user_filter, possible_filters){
-  purrr::map(user_filter, matching_function, possible_filters)
-}
 
 
 

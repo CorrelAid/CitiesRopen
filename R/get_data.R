@@ -10,19 +10,19 @@
 get_data <- function(data, download = "Environment"){
 
   #Asking for permission to download
-  cli::cli({message_authorization(data)})
+  cli::cli({helper_message_authorization(data)})
   answer <- readline()
 
   # 1. Step: Stop, if there is no permission to download
   if (answer == "N" | answer == "n" | answer == "No" | answer == "no"){
   cli::cli_alert_danger("You have aborted the download. Please run the function again!")
-  CitiesRopen:::stopQuietly()}
+  helper_stopQuietly()}
   # 2. Step: Evaluate download option and start downloading
   if (download == "Environment" | download == "E"){
 
     assign("List_Open_Data",list(), envir = .GlobalEnv)
 
-    message_start_download()
+    helper_message_start_download()
     id <- cli::cli_status("")
 
     purrr::pwalk(.l = data,.f = function(...){
@@ -45,7 +45,7 @@ get_data <- function(data, download = "Environment"){
         else {
           List_Open_Data <<- append(List_Open_Data, list(current$url))
           names(List_Open_Data)[length(List_Open_Data)] <<- current$name
-          #message_unknown_format(current$name, current$format)
+          #helper_message_unknown_format(current$name, current$format)
         }
       })
     }
@@ -57,7 +57,7 @@ get_data <- function(data, download = "Environment"){
     })
   }
   cli::cli_status_clear(id)
-  message_end_download()
+  helper_message_end_download()
 }
 
 
