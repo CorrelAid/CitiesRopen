@@ -5,6 +5,8 @@ Authors@R: person("Philipp", "Bosch", email = "philipp.bosch@uni-konstanz.de", r
 Description: This package contains two major functions to access the Open Data Portal of Konstanz.
 License: MIT + file LICENSE
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Encoding: UTF-8
@@ -27,3 +29,4 @@ Imports:
     RecordLinkage,
     tibble,
     cli
+VignetteBuilder: knitr
