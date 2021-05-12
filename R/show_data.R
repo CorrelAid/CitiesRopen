@@ -1,7 +1,7 @@
 #' show data function
 #'
 #' @param external boolean to include/exclude external datasets (not hosted by OpenData Konstanz)
-#' @param tag vector of strings to filter for specific tags/groups
+#' @param category vector of strings to filter for specific category/groups
 #' @param format vector of strings to filter for specific data formats
 #' @param message boolean to get description of returned data set
 #'
@@ -10,7 +10,7 @@
 #'
 #' @examples
 
-show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE) {
+show_data <- function(external = TRUE, category = NULL, format = NULL, message = TRUE) {
 
 
   global_df <- helper_create_global_df()
@@ -42,9 +42,9 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
   }
 
 
-  #Check if tag filter matches the existing categories
-  if(!is.null(tag) & isFALSE(all(tag %in% tag_list))){
-    wrong_tag <- tag[!tag %in% tag_list]
+  #Check if category filter matches the existing categories
+  if(!is.null(category) & isFALSE(all(category %in% tag_list))){
+    wrong_tag <- category[!category %in% tag_list]
     suggested_tag_filters <- helper_suggest_filter_tags(wrong_tag, tag_list)
 
     helper_message_matching_tag(wrong_tag, suggested_tag_filters, tag_list)
@@ -52,9 +52,9 @@ show_data <- function(external = TRUE, tag = NULL, format = NULL, message = TRUE
   }
 
   #Filter out data sets with tags
-  if(!is.null(tag)) {
+  if(!is.null(category)) {
     global_df %>%
-      dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% tag)) -> global_df
+      dplyr::filter(dplyr::if_any(dplyr::starts_with("tag_no"), ~. %in% category)) -> global_df
   }
 
   #Check if format filters are correct
