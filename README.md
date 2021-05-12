@@ -3,7 +3,7 @@ CitiesRopen
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# CitiesRopen <img src='man/figures/logo_package.png' align="right" height="139" />
+<img src='man/figures/logo_package.png' align="right" height="139" />
 
 <!-- badges: start -->
 
@@ -16,17 +16,27 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/CitiesRopen)](https://CRAN.R-project.org/package=CitiesRopen)
 <!-- badges: end -->
 
-The goal of CitiesRopen is to provide an easy access to the Open Data
-Portal [Offene Daten Konstanz](https://offenedaten-konstanz.de/).
+This packages allows you to directly inspect and download data from the
+[Open Data Portal](https://offenedaten-konstanz.de/) of Constance. It
+can be easily used by practioniers, members of the civil society and
+academics and expects users to have only a basic understanding of R.
+Technically, the package relies on the [DKAN
+API](https://www.offenedaten-koeln.de/blog/dkan-api-howto).
 
-# CitiesRopen
+## Features
 
-This packages provides an easy and accessible tool to directly inspect
-and download data from the Open Data Portal of Constance. It relies of
-the [DKAN API](https://www.offenedaten-koeln.de/blog/dkan-api-howto),
-which allows a direct and current access to all data sets in the portal.
+  - Browse all data files in the Open Data Portal of Constance with
+    `show_data()`
+  - Directly download selected files into R or your local machine with
+    `get_data()`
+  - Write queries and filter according to specific formats, categories
+    or data sources
+  - Interactive console interface for maximum user experience
+  - Avoid manual downloads and version inconsistencies
 
-## Getting Started
+## Usage
+
+### Installation
 
 You can install the package directly from Github using the
 `install_github` function from the `devtools` package as shown below.
@@ -38,26 +48,22 @@ install.packages("devtools")
 devtools::install_github("PhilippMartinBosch/CitiesRopen")
 ```
 
-## How to use the package
+### Structure
 
-### Basic Structure
-
-The package provides to major functions, which build on each other. In
-order to use the package, you always have to call `show_data` first to
-get an overview over the files in the data portal. As described below,
-you can combine your query with different filter arguments to restrict
-your search to only files of interest. Once you have restricted your
-query, you can start downloading the files using the `get_data`
-function. In order to connect both functions, you have to use the pipe
-operator `%>%` from `margritter`.
+The package provides to major functions, which functionally build on
+each other. First, you always have to call `show_data` to get an
+overview over the files in the data portal. As described below, you can
+combine your query with different filter arguments to restrict your
+search to only files of interest. Once you have restricted your query,
+you can start downloading the files using the `get_data` function. In
+order to connect both functions, you have to use the pipe operator `%>%`
+from `margritter`.
 
 ``` r
 #Basic Structure (without filter arguments)
 show_data() %>% 
   get_data()
 ```
-
-### Functions
 
 #### show\_data()
 
@@ -94,13 +100,14 @@ The following arguments are available for `show_data()`:
     several files. Several resources can be selected using the `c()`
     operator
 
-  - `category` Filter for a thematic category.
+  - `category` Filter for a thematic category. Several categories can be
+    selected using the `c()` operator
     
     Choose from: “Transport und Verkehr”, “Umwelt und Klima”,
     “Bevölkerung”, “Verwaltung, Haushalt und Steuern”,
     “Infrastruktur, Bauen und Wohnen”, “Kultur, Freizeit, Sport und
     Tourismus”, “Bildung und Wissenschaft”, “Geo”, “Politik und Wahlen”
-    or“Gesetze und Justiz”
+    or “Gesetze und Justiz”
 
   - `format`: Filter for a specific format.
     
@@ -117,10 +124,15 @@ The following arguments are available for `show_data()`:
 
 #### get\_data()
 
-  - `download`: Specify, where the files should be downloaded. From
-    default, the files are loaded into the working environment. If you
-    want to download the files directly to your local machine, please
-    specify `download = "Local"`.
+  - `download`: Specify, where the files should be downloaded.
+
+Choose from: “environment” (default) or "local
+
+If you want to read the data directly in R, you can use the default
+setting for “environment”, which saves the data in a new list
+`List_Open_Data`, where each element of the list represents one data
+file. If you want to download the files directly to your local machine,
+please specify `download = "local"`.
 
 ### Use Cases
 
