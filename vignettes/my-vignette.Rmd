@@ -1,0 +1,47 @@
+---
+title: "Documentation"
+author: "Oriane Pierrès, Philipp Bosch, Lukas Birkenmaier"
+date: 12.05.2021
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# CitiesRopen
+
+This packages provides an easy and accessible tool to access data from the Open Data Portal of Constance. Data is retrieved using the [DKAN API](https://www.offenedaten-koeln.de/blog/dkan-api-howto)
+
+## Getting Started
+
+You can install the package directly from Github using the `install_github` function from the `devtools` package as shown below. Please make sure, that you have the `devtools` package locally installed on your machine before starting the download. 
+
+```{r, eval=FALSE}
+install.packages("devtools")
+devtools::install_github("PhilippMartinBosch/CitiesRopen")
+```
+
+## Structure
+
+The package provides to major functions, which allow complete access 
+
+### Use Cases
+
+
+```{r, eval=FALSE}
+CitiesRopen::show_data(tag = "Politik und Wahlen", format = "csv") %>% 
+  CitiesRopen::get_data()
+```
+
+
+
+
+`
