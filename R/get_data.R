@@ -32,7 +32,7 @@ get_data <- function(data, download = "Environment"){
         cli::cli_status_update(id,"Downloading {current$name} of type {.emph {current$format}}")
         List_Open_Data <<- append(List_Open_Data, list(data.table::fread(current$url, showProgress = F, encoding = "UTF-8",)))
         names(List_Open_Data)[length(List_Open_Data)] <<- current$name
-        cli::cli_status_update(id, cli::cli_alert_success("{current$name}: {symbol$tick} Done"))
+        cli::cli_status_update(id, cli::cli_alert_success("{current$name}: {cli::symbol$tick} Done"))
       }
       #JSON: Define and Apply Fetcher
       else if (current$format == "json") {
