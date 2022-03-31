@@ -45,7 +45,7 @@ on your machine before starting the download.
 
 ``` r
 install.packages("devtools")
-devtools::install_github("PhilippMartinBosch/CitiesRopen")
+devtools::install_github("CorrelAid/CitiesRopen")
 ```
 
 ### Structure
