@@ -1,9 +1,10 @@
-.Rproj.user
+**.Rproj.user
 .DS_Store
 .DS_Store?
-.Rhistory
-.Rdata
+**.Rhistory
 .httr-oauth
-
+R/try.R
+R/Open_Data_Konstanz
+**.RData
 R/test_file_phil.R
 inst/doc
