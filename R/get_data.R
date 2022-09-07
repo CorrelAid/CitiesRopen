@@ -20,7 +20,7 @@ get_data <- function(data, download = "Environment")  {
   helper_stopQuietly()}
   
   # 2. Validate URLs. Problem with this implementation: We request every URL twice.
-<<<<<<< HEAD
+
   # #Could rewrite get_data function -> request URL once, if URL is valid, process the HTTP body dependend on current$format
   # working_urls <- sapply(data$url, RCurl::url.exists, USE.NAMES = FALSE)
   #
@@ -38,7 +38,7 @@ get_data <- function(data, download = "Environment")  {
   #     x = x+1
   #   }
   # }
-=======
+
   #Could rewrite get_data function -> request URL once, if URL is valid, process the HTTP body dependend on current$format
   working_urls <- sapply(data$url, RCurl::url.exists, USE.NAMES = FALSE)
   
@@ -56,16 +56,16 @@ get_data <- function(data, download = "Environment")  {
       x = x+1
     }
   }
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
   
   #May include some info about excluded urls
   #Need for documentation
   id <- cli::cli_status("")
-<<<<<<< HEAD
+
   # cli::cli_alert_info("We have exluded {x} datasets because of invalid URLs or unknown fomats")
-=======
+
   cli::cli_alert_info("We have exluded {x} datasets because of invalid URLs or unknown fomats")
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
   
   
   # 4. Step: Evaluate download option and start downloading
@@ -73,12 +73,12 @@ get_data <- function(data, download = "Environment")  {
     bad_urls <- list()
     assign("List_Open_Data", list(), envir = .GlobalEnv)
 
-<<<<<<< HEAD
+
     assign("Remaining_Data", list(), envir = .GlobalEnv)
-=======
+
     assign("List_Open_Data",list(), envir = .GlobalEnv)
     assign("remaining_data",list(), envir = .GlobalEnv)
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
     
     helper_message_start_download()
     #id <- cli::cli_status("")
@@ -89,7 +89,7 @@ get_data <- function(data, download = "Environment")  {
       #CSV: Define and Apply Fetcher
       if (current$format == "csv"){
         cli::cli_status_update(id,"Downloading {current$name} of type {.emph {current$format}}")
-<<<<<<< HEAD
+
         tryCatch({ List_Open_Data <<- append(List_Open_Data, list(data.table::fread(current$url, showProgress = F, encoding = "UTF-8")))
                   cli::cli_status_update(id, cli::cli_alert_success("{current$name}: {cli::symbol$tick} Done"))
                   },
@@ -100,9 +100,9 @@ get_data <- function(data, download = "Environment")  {
                     List_Open_Data <<- append(List_Open_Data, list(paste(current$name,' - ', 'failed')))
                     cli::cli_status_update(id, cli::cli_alert("{current$name}: {cli::symbol$cross} failed"))}
                   )
-=======
+
         List_Open_Data <<- append(List_Open_Data, list(data.table::fread(current$url, showProgress = F, encoding = "UTF-8")))
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
         names(List_Open_Data)[length(List_Open_Data)] <<- current$name
       }
 
@@ -121,7 +121,7 @@ get_data <- function(data, download = "Environment")  {
       )
       names(List_Open_Data)[length(List_Open_Data)] <<- current$name
       }
-<<<<<<< HEAD
+
       #Excel: Define and Apply Fetcher
 
       else if (current$format == "xls" | current$format == "xlsx") {
@@ -148,7 +148,7 @@ get_data <- function(data, download = "Environment")  {
           List_Open_Data <<- append(List_Open_Data, list(paste(current$name,' - ', 'failed')))
           cli::cli_status_update(id, cli::cli_alert("{current$name}: {cli::symbol$cross} failed"))}
       )
-=======
+
       #JSON: Define and Apply Fetcher
       else if (current$format == "json" | current$format == "geojson") {
         cli::cli_status_update(id,"Downloading {current$name} of type {.emph {current$format}}")
@@ -169,14 +169,14 @@ get_data <- function(data, download = "Environment")  {
         List_Open_Data <<- append(List_Open_Data, list (XML::xmlTreeParse("{current$url}")))
         names(List_Open_Data)[length(List_Open_Data)] <<- current$name
         cli::cli_status_update(id, cli::cli_alert_success("{current$name}: {cli::symbol$tick} Done"))
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
       } 
       #Others: Append URL for further analysis
       else {
         # List_Open_Data <<- append(List_Open_Data, list(current$url))
         # names(List_Open_Data)[length(List_Open_Data)] <<- current$name
         # temp <- data.frame(url = current$url, format = current$format, name = current$name)
-<<<<<<< HEAD
+
         # Remaining_Data <- dplyr::bind_rows(Remaining_Data, temp)
         # return(Remaining_Data)
         Remaining_Data  <<- append(Remaining_Data, list(current))
@@ -196,7 +196,7 @@ get_data <- function(data, download = "Environment")  {
         purrr::map(.x = Remaining_Data,.f = function(x){
           current <- as.data.frame(x)
           utils::download.file(url = current$url, destfile = paste0('./Open_Data_Remaining/',current$name,'.',current$format), quiet = T)
-=======
+
         # remaining_data <- dplyr::bind_rows(remaining_data, temp)
         # return(remaining_data)
         remaining_data <<- append(remaining_data, list(c(current$url, current$format, current$name)))
@@ -212,7 +212,7 @@ get_data <- function(data, download = "Environment")  {
         dir.create("Open_Data_Remaining")
         purrr::pwalk(.l = remaining_data,.f = function(...){
           utils::download.file(url = current$url, destfile = paste('./Open_Data_Remaining/',current$name,'.',current$format, sep = ''), quiet = T)
->>>>>>> 7aba273fde4cd60c8fba041c30bccec90ffdaa36
+
         })}
       else {
         cli::cli_alert_info("The remaining data is dismissed.")
