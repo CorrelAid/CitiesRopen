@@ -6,6 +6,8 @@
 #' @return returns a full list of ressources in the Open Data Portal
 #'
 #' @examples
+#'
+
 helper_create_global_df <- function(){
 
   # define base url
@@ -164,4 +166,9 @@ helper_stopQuietly <- function(...) {
   stop(simpleError(blankMsg));
 }
 
-
+url <-
+helper_request_handler <- function(url) {
+  req <- tryCatch({ httr::content(httr::GET(url))},
+                  error = function(e) bad_urls <- list.append(bad_urls, urls))
+  return(req)
+}

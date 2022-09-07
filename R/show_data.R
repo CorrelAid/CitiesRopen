@@ -77,11 +77,27 @@ show_data <- function(external = TRUE, category = NULL, format = NULL, message =
       dplyr::filter(format %in% input_format) -> global_df
   }
 
+  #Fetching fails if URL is NA
+  global_df <- global_df[which(!is.na(global_df$url)),]
+
+  #global_df$format unreliable in some cases, rely on URL to fix
+  for(i in 1:length(global_df$url)){
+    if (grepl("csv", global_df$url[i], ignore.case= TRUE)){
+      global_df$format[i] <- "csv"
+    }
+    else if (grepl(".xls", global_df$url[i], ignore.case= TRUE)) {
+      global_df$format[i] <- "xls"
+    }
+  }
 
   #Add the messages
   if (message == TRUE) {
     helper_message_show_data(global_df)
   }
+  # Need to extract urls from faulty url patterns
+  urls_to_extract <- !stringr::str_starts(global_df$url, stringr::fixed('http'))
+  pat <- stringr::regex('(http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])')
+  global_df$url[urls_to_extract] <- stringr::str_extract(global_df$url[urls_to_extract], pat)
 
   invisible(global_df)
 }
