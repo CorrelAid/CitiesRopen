@@ -7,7 +7,7 @@
 #'
 #' @examples
 #'
-
+usethis::usePipe(export = T)
 
 helper_create_global_df <- function(){
 
