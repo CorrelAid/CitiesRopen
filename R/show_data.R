@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-
+library(magrittr)
 show_data <- function(external = TRUE, category = NULL, format = NULL, message = TRUE) {
 
 
