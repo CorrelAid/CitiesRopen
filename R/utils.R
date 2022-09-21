@@ -8,7 +8,7 @@
 #' @examples
 #'
 usethis::use_pipe(export = T)
-
+library(magrittr)
 
 helper_create_global_df <- function(){
 
