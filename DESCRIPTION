@@ -28,5 +28,7 @@ Imports:
     urltools,
     RecordLinkage,
     tibble,
-    cli
+    cli,
+    stringr
+
 VignetteBuilder: knitr
