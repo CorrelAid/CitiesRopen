@@ -94,10 +94,10 @@ show_data <- function(external = TRUE, category = NULL, format = NULL, message =
   if (message == TRUE) {
     helper_message_show_data(global_df)
   }
-  # Need to extract urls from faulty url patterns
-  # urls_to_extract <- !stringr::str_starts(global_df$url, stringr::fixed('http'))
-  # pat <- stringr::regex('(http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])')
-  # global_df$url[urls_to_extract] <- stringr::str_extract(global_df$url[urls_to_extract], pat)
+  # #Need to extract urls from faulty url patterns
+  urls_to_extract <- !stringr::str_starts(global_df$url, stringr::fixed('http'))
+  pat <- stringr::regex('(http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])')
+  global_df$url[urls_to_extract] <- stringr::str_extract(global_df$url[urls_to_extract], pat)
 
   invisible(global_df)
 }
