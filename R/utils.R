@@ -8,6 +8,9 @@
 #' @examples
 #'
 
+# Make piping operator available for package users
+usethis::use_pipe(export = TRUE)
+
 helper_create_global_df <- function(){
 
   # define base url
